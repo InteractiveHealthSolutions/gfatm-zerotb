@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="http://java.sun.com/xml/ns/javaee" 
+ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID"
+ version="3.0">
+  <display-name>gf-qrgen-web</display-name>
+  <welcome-file-list>
+    <welcome-file>qrgenerator.jsp</welcome-file>
+  </welcome-file-list>
+  
+  	<servlet>
+		<description></description>
+		<display-name>QrGenerator</display-name>
+		<servlet-name>QrGenerator</servlet-name>
+		<servlet-class>com.ihsinformatics.qrgenerator.QrGenerator</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+	<servlet-name>QrGenerator</servlet-name>
+	<url-pattern>/qrgenerator</url-pattern>
+	</servlet-mapping>
+	
+</web-app>
