@@ -63,6 +63,29 @@
 </script>
 
 
+<script type="text/javascript">
+function isNumber(evt) {
+    evt = (evt) ? evt : window.event;
+    var charCode = (evt.which) ? evt.which : evt.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        return false;
+    }
+    return true;
+}
+</script>
+
+<script type="text/javascript">
+function isAlphaNumeric(e) {
+    
+    if ((e.keyCode >= 48 && e.keyCode <= 57) ||
+       (e.keyCode >= 65 && e.keyCode <= 90) ||
+       (e.keyCode >= 97 && e.keyCode <= 122))
+        return true;
+
+    return false;
+}
+</script>
+
 
 <script type="text/javascript">
 	function submitForm() {
@@ -145,6 +168,33 @@
 		}
 
 		else {
+			var alphaNum = document.getElementById('alphanumericBox');
+			var caseSensitive = document.getElementById('caseSenstiveBox');
+			var totalSum = 0;
+			var mulNumber = 0;
+
+			if (!alphaNum.checked && !caseSensitive.checked) {
+				totalSum = 10;
+				mulNumber = 10;
+				
+			}
+
+			if (alphaNum.checked && !caseSensitive.checked) {
+				totalSum = 62;
+				mulNumber = 62;
+			}
+
+			if (alphaNum.checked && caseSensitive.checked) {
+				totalSum = 36;
+				mulNumber = 36;
+			}
+
+			if (!randomRange.value == "") {
+				for (var j = 1; j < serialValue ; j++) {
+					totalSum *= mulNumber;
+				}
+			}
+
 			if (prefix.value == "") {
 				error.innerHTML = "Prefix Missing!!";
 
@@ -171,11 +221,20 @@
 			else if (layout.value == "") {
 				error.innerHTML = "QR Code Layout Missing!!";
 			}
-
+			
+			else if(randomRange.value > 1000000 && totalSum > 1000000){
+				error.innerHTML = "Maximum length can be 1000000";
+			}
+			
+			else if(randomRange.value > totalSum){
+				error.innerHTML = "Maximum length can be " + totalSum;
+			}
+			
 			else {
 				error.innerHTML = "";
 				form.submit();
 			}
+
 		}
 	}
 </script>
@@ -202,13 +261,6 @@
 		var senseLbl = document.getElementById('senseLbl');
 
 		if (serial.checked == true) {
-			// 			prefix.disabled = false;
-			// 			appendDate.disabled = false;
-			// 			sno.disabled = false;
-			// 			from.disabled = false;
-			// 			to.disabled = false;
-			// 			layout.disabled = false;
-			// 			copies.disabled = false;
 			alpha.style.display = 'none';
 			sensitive.style.display = 'none';
 			alphaLbl.style.display = 'none';
@@ -221,16 +273,6 @@
 		}
 
 		else if (random.checked == true) {
-			//	prefix.disabled = true;
-			//	appendDate.checked = false;
-			//	appendDate.disabled = true;
-			//	dateFormat.disabled = true;
-			//	date.disabled = true;
-			//	sno.disabled = true;
-			//	from.disabled = true;
-			//	to.disabled = true;
-			//	layout.disabled = true;
-			//	copies.disabled = true;
 			alpha.style.display = 'inline-block';
 			sensitive.style.display = 'inline-block';
 			alphaLbl.style.display = 'inline-block';
@@ -265,13 +307,12 @@
 
 						<tr>
 							<th style="width: 1.3in">Type</th>
-							<td style="padding-left: 23px; width: 3.5in">
-							<input type="radio" id="serialBtn" value="serial" checked
-								onclick="changeForm()" name="typeSelection">Serial
-							<input
+							<td style="padding-left: 23px; width: 3.5in"><input
+								type="radio" id="serialBtn" value="serial" checked
+								onclick="changeForm()" name="typeSelection">Serial <input
 								type="radio" id="randomBtn" value="random"
-								onclick="changeForm()" name="typeSelection" style="margin-left: 25px">Random
-						  </td>
+								onclick="changeForm()" name="typeSelection"
+								style="margin-left: 25px">Random</td>
 						</tr>
 
 						<tr id="textType" style="display: none">
@@ -288,8 +329,8 @@
 						<tr>
 							<th>Prefix</th>
 							<td style="padding-left: 23px"><input name="prefix"
-								size="50" maxlength="20" class="form-control input"
-								id="prefixId" required="true" /></td>
+								size="50" maxlength="10" class="form-control input"
+								id="prefixId" required="true" onkeypress="return isAlphaNumeric(event)" /></td>
 						</tr>
 						<tr>
 							<th>Append Date</th>
@@ -336,8 +377,6 @@
 									<option value="4">4</option>
 									<option value="5">5</option>
 									<option value="6">6</option>
-									<option value="7">7</option>
-									<option value="8">8</option>
 							</select></td>
 						</tr>
 
@@ -348,12 +387,12 @@
 
 									<div class="col-md-6">
 										From<input name="from" type="number" min="1"
-											class="form-control input" required="true" id="fromBox" />
+											class="form-control input" required="true" id="fromBox"  onkeypress="return isNumber(event)" />
 									</div>
 
 									<div class="col-md-6">
 										To<input id="toBox" name="to" type="number" min="1"
-											class="form-control input" required="true" />
+											class="form-control input" required="true"  onkeypress="return isNumber(event)" />
 									</div>
 
 								</div>
@@ -366,7 +405,7 @@
 							<th>Range</th>
 							<td style="padding-left: 23px"><input name="rangeForRandom"
 								type="number" id="rangeBox" class="form-control input"
-								required="true" min="1" /></td>
+								required="true" min="1" onkeypress="return isNumber(event)" /></td>
 						</tr>
 
 						<tr>

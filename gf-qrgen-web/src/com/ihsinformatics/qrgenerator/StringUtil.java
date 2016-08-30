@@ -35,6 +35,7 @@ public class StringUtil {
 	 *            : when true, A-Z and a-z will be included in the string
 	 * @return
 	 */
+
 	public static String randomString(int length, boolean numeric,
 			boolean alpha, boolean caseSensitive) {
 		String characters = "";
@@ -42,9 +43,9 @@ public class StringUtil {
 			characters = "0123456789";
 		}
 		if (alpha) {
-			characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			characters += "ACEFGHIJKLOQRSTUVWXYZ";
 			if (caseSensitive) {
-				characters += "abcdefghijklmnopqrstuvwxyz";
+				characters += "acefghijkloqrstuvwxyz";
 			}
 		}
 		Random rand = new Random();
@@ -54,4 +55,5 @@ public class StringUtil {
 		}
 		return new String(text);
 	}
+
 }
