@@ -76,13 +76,16 @@ function isNumber(evt) {
 
 <script type="text/javascript">
 function isAlphaNumeric(e) {
-    
-    if ((e.keyCode >= 48 && e.keyCode <= 57) ||
-       (e.keyCode >= 65 && e.keyCode <= 90) ||
-       (e.keyCode >= 97 && e.keyCode <= 122))
-        return true;
-
-    return false;
+	var charCode = e.which;
+ 	   if ((e.keyCode >= 48 && e.keyCode <= 57) ||
+    	   (e.keyCode >= 65 && e.keyCode <= 90) ||
+     	   (e.keyCode >= 97 && e.keyCode <= 122) || (charCode >= 48 && charCode <= 57) ||
+      		(charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122) || 
+      		(charCode == 8) || (charCode == 127)){
+     		   return true;
+ 	   } else {
+    		return false;
+ 	   }
 }
 </script>
 
@@ -104,7 +107,12 @@ function isAlphaNumeric(e) {
 		var serial = document.getElementById("serialBtn");
 		var random = document.getElementById("randomBtn");
 		var randomRange = document.getElementById("rangeBox");
-
+		
+		var reg = new RegExp('^[0-9]+$');
+		var reg1 = /[^A-Za-z0-9 ]/;
+		
+		var splitter = date.value.split("-");
+		
 		var defaultRange = "9";
 		var val = serialValue - 1;
 
@@ -118,6 +126,11 @@ function isAlphaNumeric(e) {
 			else if (!prefix.value.replace(/\s/g, '').length) {
 				error.innerHTML = "Prefix Missing!!";
 			}
+			
+			else if(reg1.test(prefix.value)){
+				error.innerHTML = "Incorrect Prefix Value!!";
+			}
+			
 
 			else if (appendDate.checked && date.value == "") {
 				error.innerHTML = "Date Missing!!";
@@ -128,16 +141,30 @@ function isAlphaNumeric(e) {
 					&& !date.value.replace(/\s/g, '').length) {
 				error.innerHTML = "Date Missing!!";
 			}
-
+			
+			else if(splitter[0] < 1970){
+				error.innerHTML = "Incorrect Date";
+			}
+			
 			else if (from.value == "") {
 				error.innerHTML = "Serial No Range From Missing!!";
 
+			}
+			
+			else if(!reg.test(from.value)){
+				error.innerHTML = "Serial No Range Incorrect From Value!!";
 			}
 
 			else if (to.value == "") {
 				error.innerHTML = "Serial No Range To Missing!!";
 
-			} else if (layout.value == "") {
+			} 
+			else if(!reg.test(to.value)){
+				error.innerHTML = "Serial No Range Incorrect To Value!!";
+			}
+
+			
+			else if (layout.value == "") {
 				error.innerHTML = "QR Code Layout Missing!!";
 			}
 
@@ -203,6 +230,10 @@ function isAlphaNumeric(e) {
 			else if (!prefix.value.replace(/\s/g, '').length) {
 				error.innerHTML = "Prefix Missing!!";
 			}
+			
+			else if(reg1.test(prefix.value)){
+				error.innerHTML = "Incorrect Prefix Value!!";
+			}
 
 			else if (appendDate.checked && date.value == "") {
 				error.innerHTML = "Date Missing!!";
@@ -213,9 +244,17 @@ function isAlphaNumeric(e) {
 					&& !date.value.replace(/\s/g, '').length) {
 				error.innerHTML = "Date Missing!!";
 			}
+			
+			else if(splitter[0] < 1970){
+				error.innerHTML = "Incorrect Date";
+			}
 
 			else if (randomRange.value == "") {
 				error.innerHTML = "Range Missing!!";
+			}
+			
+			else if(!reg.test(randomRange.value)){
+				error.innerHTML = "Incorrect Range Value!!";
 			}
 
 			else if (layout.value == "") {
@@ -330,7 +369,8 @@ function isAlphaNumeric(e) {
 							<th>Prefix</th>
 							<td style="padding-left: 23px"><input name="prefix"
 								size="50" maxlength="10" class="form-control input"
-								id="prefixId" required="true" onkeypress="return isAlphaNumeric(event)" /></td>
+								id="prefixId" required="true"
+								onkeypress="return isAlphaNumeric(event)" /></td>
 						</tr>
 						<tr>
 							<th>Append Date</th>
@@ -387,12 +427,14 @@ function isAlphaNumeric(e) {
 
 									<div class="col-md-6">
 										From<input name="from" type="number" min="1"
-											class="form-control input" required="true" id="fromBox"  onkeypress="return isNumber(event)" />
+											class="form-control input" required="true" id="fromBox"
+											onkeypress="return isNumber(event)" />
 									</div>
 
 									<div class="col-md-6">
 										To<input id="toBox" name="to" type="number" min="1"
-											class="form-control input" required="true"  onkeypress="return isNumber(event)" />
+											class="form-control input" required="true"
+											onkeypress="return isNumber(event)" />
 									</div>
 
 								</div>

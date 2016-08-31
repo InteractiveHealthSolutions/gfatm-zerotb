@@ -182,7 +182,6 @@ public class QrGenerator extends HttpServlet {
 			int randomRange = Integer.parseInt(initialRange);
 
 			if (alphanumeric != null) {
-				numeric = false;
 				alphaNu = true;
 
 				if (casesensitive != null) {
