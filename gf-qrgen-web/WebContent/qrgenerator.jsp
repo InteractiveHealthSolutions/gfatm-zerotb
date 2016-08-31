@@ -142,7 +142,7 @@ function isAlphaNumeric(e) {
 				error.innerHTML = "Date Missing!!";
 			}
 			
-			else if(splitter[0] < 1970){
+			else if(appendDate.checked && splitter[0] < 1970){
 				error.innerHTML = "Incorrect Date";
 			}
 			
@@ -245,7 +245,7 @@ function isAlphaNumeric(e) {
 				error.innerHTML = "Date Missing!!";
 			}
 			
-			else if(splitter[0] < 1970){
+			else if(appendDate.checked && splitter[0] < 1970){
 				error.innerHTML = "Incorrect Date";
 			}
 
