@@ -143,24 +143,40 @@ function isAlphaNumeric(e) {
 			}
 			
 			else if(appendDate.checked && splitter[0] < 1970){
-				error.innerHTML = "Incorrect Date";
+				error.innerHTML = "Incorrect Date Year. Minimum year can be 1970";
+			}
+			
+			else if(appendDate.checked && splitter[1] < 1 || appendDate.checked && splitter[1] > 12){
+				error.innerHTML = "Incorrect Date Month";
+			}
+			
+			else if(appendDate.checked && splitter[2] < 1 || appendDate.checked && splitter[2] > 31){
+				error.innerHTML = "Incorrect Date Day";
 			}
 			
 			else if (from.value == "") {
-				error.innerHTML = "Serial No Range From Missing!!";
+				error.innerHTML = "Serial No Range From Missing or Incorrect!!";
 
 			}
 			
 			else if(!reg.test(from.value)){
 				error.innerHTML = "Serial No Range Incorrect From Value!!";
 			}
+			
+			else if(from.value == 0){
+				error.innerHTML = "Serial No Range From Cant Be 0!!";
+			}
 
 			else if (to.value == "") {
-				error.innerHTML = "Serial No Range To Missing!!";
+				error.innerHTML = "Serial No Range To Missing or Incorrect!!";
 
 			} 
 			else if(!reg.test(to.value)){
 				error.innerHTML = "Serial No Range Incorrect To Value!!";
+			}
+
+			else if(to.value == 0){
+				error.innerHTML = "Serial No Range To Cant Be 0!!";
 			}
 
 			
@@ -207,13 +223,13 @@ function isAlphaNumeric(e) {
 			}
 
 			if (alphaNum.checked && !caseSensitive.checked) {
-				totalSum = 62;
-				mulNumber = 62;
+				totalSum = 36;
+				mulNumber = 36;
 			}
 
 			if (alphaNum.checked && caseSensitive.checked) {
-				totalSum = 36;
-				mulNumber = 36;
+				totalSum = 62;
+				mulNumber = 62;
 			}
 
 			if (!randomRange.value == "") {
@@ -246,16 +262,29 @@ function isAlphaNumeric(e) {
 			}
 			
 			else if(appendDate.checked && splitter[0] < 1970){
-				error.innerHTML = "Incorrect Date";
+				error.innerHTML = "Incorrect Date Year. Minimum year can be 1970";
+			}
+			
+			else if(appendDate.checked && splitter[1] < 1 || appendDate.checked && splitter[1] > 12){
+				error.innerHTML = "Incorrect Date Month";
+			}
+			
+			else if(appendDate.checked && splitter[2] < 1 || appendDate.checked && splitter[2] > 31){
+				error.innerHTML = "Incorrect Date Day";
 			}
 
 			else if (randomRange.value == "") {
-				error.innerHTML = "Range Missing!!";
+				error.innerHTML = "Range Missing or Incorrect Range!!";
 			}
 			
 			else if(!reg.test(randomRange.value)){
 				error.innerHTML = "Incorrect Range Value!!";
 			}
+			
+			else if(randomRange.value == 0){
+				error.innerHTML = "Range Cant Be 0!!";
+			}
+
 
 			else if (layout.value == "") {
 				error.innerHTML = "QR Code Layout Missing!!";
