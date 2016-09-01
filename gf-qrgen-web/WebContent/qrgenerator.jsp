@@ -362,16 +362,15 @@ function isAlphaNumeric(e) {
 			<div class="col-md-12 column"></div>
 		</div>
 
-		<div class="row clearfix" style="margin-left: 3in">
+		<div class="row clearfix">
 
 
-			<div class="col-md-9 column">
+			<div class="col-md-12 column">
 				<h3 align="center">QR Code Generator</h3>
 				<form method="POST" action="/gf-qrgen-web/qrgenerator"
 					id="qrGenForm">
 
-					<table border="1px" class="table table-bordered"
-						style="width: 4.8in; margin-left: 0.8in">
+					<table border="1px" class="table table-bordered" style="width: 50%;" align="center">
 
 						<tr>
 							<th style="width: 1.3in">Type</th>
