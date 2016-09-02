@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import javax.servlet.ServletException;
@@ -52,11 +53,16 @@ public class QrGenerator extends HttpServlet {
 	Document document = new Document();
 	int count = 0;
 	String dateFormat = "";
+	Statement stmt = null;
 	String partialDate = "";
 	DateFormat df = null;
+	Connection connection = null;
 	Date date1 = null;
 	int copiesImage = 1;
 	int columnLimit = 1;
+	DateFormat dateFo = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	boolean isNotDuplicate = false;
+	Date dbDate = new Date();
 	Properties property;
 
 	/**
@@ -84,23 +90,18 @@ public class QrGenerator extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 
 		String serialFormat = "%02d";
+		HashSet<String> qrCollection = new HashSet<String>();
+		dbDate = new Date();
 		count = 0;
 		document = new Document();
 		document.setMargins(90f, 0, 30f, 30f);
-		Connection connection;
 
 		boolean numeric = true;
 		boolean alphaNu = false;
 		boolean caseSe = false;
-		Statement stmt;
 
-		
-	
-		
-		
-		
-		
-		
+		connection = connectDatabase();
+
 		int width = 140;
 		int height = 140;
 		String typeSelection = request.getParameter("typeSelection");
@@ -198,29 +199,41 @@ public class QrGenerator extends HttpServlet {
 
 			if (dateCheck) {
 				String date = formatDate(dateFormat, date1);
-				for (int i = 0; i < randomRange; i++) {
+				while (qrCollection.size() != randomRange) {
 					String qrCode = locationText + date;
 					qrCode += StringUtil.randomString(range, numeric, alphaNu,
 							caseSe);
 					qrCode += "-" + calculateLuhnDigit(qrCode);
-					try {
-						createQRImage(qrCode, width, height);
-					} catch (WriterException | DocumentException e) {
-						e.printStackTrace();
+
+					isNotDuplicate = insertQrCode(qrCode);
+
+					if (isNotDuplicate) {
+						try {
+							createQRImage(qrCode, width, height);
+							qrCollection.add(qrCode);
+						} catch (WriterException | DocumentException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
 
 			else {
-				for (int i = 0; i < randomRange; i++) {
+				while (qrCollection.size() != randomRange) {
 					String qrCode = locationText;
 					qrCode += StringUtil.randomString(range, numeric, alphaNu,
 							caseSe);
 					qrCode += "-" + calculateLuhnDigit(qrCode);
-					try {
-						createQRImage(qrCode, width, height);
-					} catch (WriterException | DocumentException e) {
-						e.printStackTrace();
+
+					isNotDuplicate = insertQrCode(qrCode);
+
+					if (isNotDuplicate) {
+						try {
+							createQRImage(qrCode, width, height);
+							qrCollection.add(qrCode);
+						} catch (WriterException | DocumentException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -241,6 +254,15 @@ public class QrGenerator extends HttpServlet {
 		} catch (DocumentException e) {
 			e.printStackTrace();
 		}
+
+		try {
+			stmt.close();
+			connection.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		document.close();
 		OutputStream os = response.getOutputStream();
 		byteArrayOutputStream.writeTo(os);
@@ -276,6 +298,21 @@ public class QrGenerator extends HttpServlet {
 		sum = Math.abs(sum) + 10;
 		return (10 - (sum % 10)) % 10;
 
+	}
+
+	public boolean insertQrCode(String qrCode) {
+		try {
+			stmt = connection.createStatement();
+			String sql = "insert into _identifier values('" + qrCode + "','"
+					+ dateFo.format(dbDate) + "');";
+
+			stmt.executeUpdate(sql);
+
+		} catch (SQLException e2) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public Connection connectDatabase() {
