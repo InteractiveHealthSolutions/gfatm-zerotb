@@ -1,23 +1,21 @@
 package com.ihsinformatics.qrgenerator;
 
 import java.awt.Color;
+import java.util.Properties;
+import java.sql.*;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,7 +29,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.ihsinformatics.qrgenerator.StringUtil;
-import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -60,6 +57,7 @@ public class QrGenerator extends HttpServlet {
 	Date date1 = null;
 	int copiesImage = 1;
 	int columnLimit = 1;
+	Properties property;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -89,11 +87,20 @@ public class QrGenerator extends HttpServlet {
 		count = 0;
 		document = new Document();
 		document.setMargins(90f, 0, 30f, 30f);
+		Connection connection;
 
 		boolean numeric = true;
 		boolean alphaNu = false;
 		boolean caseSe = false;
+		Statement stmt;
 
+		
+	
+		
+		
+		
+		
+		
 		int width = 140;
 		int height = 140;
 		String typeSelection = request.getParameter("typeSelection");
@@ -269,6 +276,28 @@ public class QrGenerator extends HttpServlet {
 		sum = Math.abs(sum) + 10;
 		return (10 - (sum % 10)) % 10;
 
+	}
+
+	public Connection connectDatabase() {
+		property = new Properties();
+		InputStream propFile = QrGenerator.class
+				.getResourceAsStream("/qrgenerator.properties");
+		try {
+			property.load(propFile);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			Class.forName(property.getProperty(PropertyName.JDBC_DRIVER));
+			Connection connection = DriverManager.getConnection(property
+					.getProperty(PropertyName.QRGENERATOR_CONNECTION_URL),
+					property.getProperty(PropertyName.QRGENERATOR_USER),
+					property.getProperty(PropertyName.QRGENERATOR_PASSWORD));
+			return connection;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public void createQRImage(String qrCodeText, int width, int height)
