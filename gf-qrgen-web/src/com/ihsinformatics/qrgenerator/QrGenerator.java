@@ -17,6 +17,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -44,7 +46,6 @@ import com.sun.media.sound.InvalidFormatException;
 /**
  * Servlet implementation class QrGenerator
  */
-@WebServlet("/qrgenerator")
 public class QrGenerator extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	int length = 0;
@@ -62,6 +63,7 @@ public class QrGenerator extends HttpServlet {
 	int columnLimit = 1;
 	DateFormat dateFo = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	boolean isNotDuplicate = false;
+	boolean allowDuplicates = false;
 	Date dbDate = new Date();
 	Properties property;
 
@@ -78,8 +80,8 @@ public class QrGenerator extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		String a = request.getParameter("prefix");
-		System.out.println(a);
+		getServletContext().getRequestDispatcher("/qrgenerator.jsp").forward(
+				request, response);
 	}
 
 	/**
@@ -98,6 +100,7 @@ public class QrGenerator extends HttpServlet {
 
 		boolean numeric = true;
 		boolean alphaNu = false;
+		boolean success = true;
 		boolean caseSe = false;
 
 		connection = connectDatabase();
@@ -131,14 +134,6 @@ public class QrGenerator extends HttpServlet {
 			dateCheck = true;
 		}
 
-		response.setHeader("Expires", "0");
-		response.setHeader("Cache-Control",
-				"must-revalidate, post-check=0, pre-check=0");
-		response.setHeader("Pragma", "public");
-		response.setContentType("application/pdf");
-		response.setHeader("Content-Disposition", "attachment; filename="
-				+ "QrCode" + ".pdf");
-
 		try {
 			PdfWriter.getInstance(document, byteArrayOutputStream);
 			document.open();
@@ -150,6 +145,13 @@ public class QrGenerator extends HttpServlet {
 
 			char old = serialFormat.charAt(2);
 			serialFormat = serialFormat.replace(old, limit.charAt(0));
+			String duplicate = request.getParameter("duplicates");
+
+			if (duplicate == null) {
+				allowDuplicates = false;
+			} else {
+				allowDuplicates = true;
+			}
 
 			int from = Integer.parseInt(request.getParameter("from"));
 			int to = Integer.parseInt(request.getParameter("to"));
@@ -161,7 +163,31 @@ public class QrGenerator extends HttpServlet {
 						String qrCodeText = locationText + date
 								+ String.format(serialFormat, i);
 						qrCodeText += "-" + calculateLuhnDigit(qrCodeText);
-						createQRImage(qrCodeText, width, height);
+						isNotDuplicate = insertQrCode(qrCodeText);
+
+						if (!allowDuplicates) {
+							if (isNotDuplicate) {
+								createQRImage(qrCodeText, width, height);
+							}
+
+							else {
+								success = false;
+								deleteQrCode();
+								String status = "Duplicate exists. Use Different Values.";
+								ServletContext sc = this.getServletContext();
+								RequestDispatcher rd = sc
+										.getRequestDispatcher("/");
+								request.setAttribute("errorMsg", status);
+								rd.forward(request, response);
+								return;
+							}
+						}
+
+						else {
+							insertQrCode(qrCodeText);
+							createQRImage(qrCodeText, width, height);
+						}
+
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -172,7 +198,31 @@ public class QrGenerator extends HttpServlet {
 						String qrCodeText = locationText
 								+ String.format(serialFormat, i);
 						qrCodeText += "-" + calculateLuhnDigit(qrCodeText);
-						createQRImage(qrCodeText, width, height);
+						isNotDuplicate = insertQrCode(qrCodeText);
+
+						if (!allowDuplicates) {
+							if (isNotDuplicate) {
+								createQRImage(qrCodeText, width, height);
+							}
+
+							else {
+								success = false;
+								deleteQrCode();
+								String status = "Duplicate exists. Use Different Values.";
+								ServletContext sc = this.getServletContext();
+								RequestDispatcher rd = sc
+										.getRequestDispatcher("/");
+								request.setAttribute("errorMsg", status);
+								rd.forward(request, response);
+								return;
+							}
+						}
+
+						else {
+							insertQrCode(qrCodeText);
+							createQRImage(qrCodeText, width, height);
+						}
+
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -187,7 +237,29 @@ public class QrGenerator extends HttpServlet {
 			String alphanumeric = request.getParameter("alphanumeric");
 			String casesensitive = request.getParameter("casesensitive");
 			String initialRange = request.getParameter("rangeForRandom");
+			int breakValue = 0;
+			int mulValue = 0;
+			int countValue = 0;
 			int randomRange = Integer.parseInt(initialRange);
+
+			if (alphanumeric != null && casesensitive != null) {
+				breakValue = 62;
+				mulValue = 62;
+			}
+
+			else if (alphanumeric != null) {
+				breakValue = 32;
+				mulValue = 32;
+			}
+
+			else {
+				breakValue = 10;
+				mulValue = 10;
+			}
+
+			for (int i = 1; i < randomRange; i++) {
+				breakValue *= mulValue;
+			}
 
 			if (alphanumeric != null) {
 				alphaNu = true;
@@ -200,74 +272,112 @@ public class QrGenerator extends HttpServlet {
 			if (dateCheck) {
 				String date = formatDate(dateFormat, date1);
 				while (qrCollection.size() != randomRange) {
-					String qrCode = locationText + date;
-					qrCode += StringUtil.randomString(range, numeric, alphaNu,
-							caseSe);
-					qrCode += "-" + calculateLuhnDigit(qrCode);
+					if (countValue < breakValue) {
+						String qrCode = locationText + date;
+						qrCode += StringUtil.randomString(range, numeric,
+								alphaNu, caseSe);
+						qrCode += "-" + calculateLuhnDigit(qrCode);
 
-					isNotDuplicate = insertQrCode(qrCode);
+						isNotDuplicate = insertQrCode(qrCode);
 
-					if (isNotDuplicate) {
-						try {
-							createQRImage(qrCode, width, height);
-							qrCollection.add(qrCode);
-						} catch (WriterException | DocumentException e) {
-							e.printStackTrace();
+						if (isNotDuplicate) {
+							try {
+								createQRImage(qrCode, width, height);
+								qrCollection.add(qrCode);
+								countValue++;
+							} catch (WriterException | DocumentException e) {
+								e.printStackTrace();
+							}
 						}
+					}
+
+					else {
+						deleteQrCode();
+						success = false;
+						String status = "All combinations already created. Choose different values.";
+						ServletContext sc = this.getServletContext();
+						RequestDispatcher rd = sc.getRequestDispatcher("/");
+						request.setAttribute("errorMsg", status);
+						rd.forward(request, response);
+						return;
 					}
 				}
 			}
 
 			else {
 				while (qrCollection.size() != randomRange) {
-					String qrCode = locationText;
-					qrCode += StringUtil.randomString(range, numeric, alphaNu,
-							caseSe);
-					qrCode += "-" + calculateLuhnDigit(qrCode);
+					if (countValue != breakValue) {
+						String qrCode = locationText;
+						qrCode += StringUtil.randomString(range, numeric,
+								alphaNu, caseSe);
+						qrCode += "-" + calculateLuhnDigit(qrCode);
 
-					isNotDuplicate = insertQrCode(qrCode);
+						isNotDuplicate = insertQrCode(qrCode);
 
-					if (isNotDuplicate) {
-						try {
-							createQRImage(qrCode, width, height);
-							qrCollection.add(qrCode);
-						} catch (WriterException | DocumentException e) {
-							e.printStackTrace();
+						if (isNotDuplicate) {
+							try {
+								createQRImage(qrCode, width, height);
+								qrCollection.add(qrCode);
+								countValue++;
+							} catch (WriterException | DocumentException e) {
+								e.printStackTrace();
+							}
 						}
+					}
+
+					else {
+						deleteQrCode();
+						success = false;
+						String status = "All combinations already created. Choose different values.";
+						ServletContext sc = this.getServletContext();
+						RequestDispatcher rd = sc.getRequestDispatcher("/");
+						request.setAttribute("errorMsg", status);
+						rd.forward(request, response);
+						return;
 					}
 				}
 			}
 		}
 
-		try {
-			for (int i = 0; i < 6; i++) {
+		if (success) {
 
-				if (count % columnLimit != 0) {
-					PdfPCell cell = new PdfPCell(new Phrase());
-					cell.setBorder(Rectangle.NO_BORDER);
-					table.addCell(cell);
-					count++;
+			response.setHeader("Expires", "0");
+			response.setHeader("Cache-Control",
+					"must-revalidate, post-check=0, pre-check=0");
+			response.setHeader("Pragma", "public");
+			response.setContentType("application/pdf");
+			response.setHeader("Content-Disposition", "attachment; filename="
+					+ "QrCode" + ".pdf");
+
+			try {
+				for (int i = 0; i < 6; i++) {
+
+					if (count % columnLimit != 0) {
+						PdfPCell cell = new PdfPCell(new Phrase());
+						cell.setBorder(Rectangle.NO_BORDER);
+						table.addCell(cell);
+						count++;
+					}
 				}
+
+				document.add(table);
+			} catch (DocumentException e) {
+				e.printStackTrace();
 			}
 
-			document.add(table);
-		} catch (DocumentException e) {
-			e.printStackTrace();
-		}
+			try {
+				stmt.close();
+				connection.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 
-		try {
-			stmt.close();
-			connection.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			document.close();
+			OutputStream os = response.getOutputStream();
+			byteArrayOutputStream.writeTo(os);
+			os.flush();
+			os.close();
 		}
-
-		document.close();
-		OutputStream os = response.getOutputStream();
-		byteArrayOutputStream.writeTo(os);
-		os.flush();
-		os.close();
 	}
 
 	private String formatDate(String format, Date date) {
@@ -313,6 +423,18 @@ public class QrGenerator extends HttpServlet {
 		}
 
 		return true;
+	}
+
+	public void deleteQrCode() {
+		try {
+			stmt = connection.createStatement();
+			String sql = "delete from _identifier where qr_dateTime='"
+					+ dateFo.format(dbDate) + "';";
+			stmt.executeUpdate(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public Connection connectDatabase() {

@@ -63,6 +63,7 @@
 </script>
 
 
+
 <script type="text/javascript">
 function isNumber(evt) {
     evt = (evt) ? evt : window.event;
@@ -327,6 +328,8 @@ function isAlphaNumeric(e) {
 		var textTypeRow = document.getElementById('textType');
 		var alphaLbl = document.getElementById('alphaLbl');
 		var senseLbl = document.getElementById('senseLbl');
+		var duplicates = document.getElementById('duplicateChk');
+		var duplicateCheckBox = document.getElementById('duplicateBox');
 
 		if (serial.checked == true) {
 			alpha.style.display = 'none';
@@ -338,11 +341,14 @@ function isAlphaNumeric(e) {
 			row.style.display = 'table-row';
 			rangeRow.style.display = 'none';
 			textTypeRow.style.display = 'none';
+			duplicates.style.display = 'table-row';
 		}
 
 		else if (random.checked == true) {
 			alpha.style.display = 'inline-block';
 			sensitive.style.display = 'inline-block';
+			duplicateCheckBox.checked = false;
+			duplicates.style.display = 'none';
 			alphaLbl.style.display = 'inline-block';
 			senseLbl.style.display = 'inline-block';
 			alpha.disabled = false;
@@ -393,12 +399,20 @@ function isAlphaNumeric(e) {
 								id="senseLbl" style="font-weight: normal; display: none">Case
 									Sensitive</label></td>
 						</tr>
+						
+						<tr id="duplicateChk">
+							<th>Allow Duplicates</th>
+							<td style="padding-left: 23px"><input id="duplicateBox"
+								type="checkbox" name="duplicates"> </td>
+						</tr>
+						
 						<tr>
 							<th>Prefix</th>
 							<td style="padding-left: 23px"><input name="prefix"
 								size="50" maxlength="10" class="form-control input"
 								id="prefixId" required="true"
-								onkeypress="return isAlphaNumeric(event)" /></td>
+								onkeypress="return isAlphaNumeric(event)" />
+								</td>
 						</tr>
 						<tr>
 							<th>Append Date</th>
@@ -503,7 +517,7 @@ function isAlphaNumeric(e) {
 
 						<tr>
 							<td colspan="3" align="center" id="errorLbl"
-								style="color: red; font-weight: bold"></td>
+								style="color: red; font-weight: bold">${errorMsg} </td>
 						</tr>
 
 						<tr>
