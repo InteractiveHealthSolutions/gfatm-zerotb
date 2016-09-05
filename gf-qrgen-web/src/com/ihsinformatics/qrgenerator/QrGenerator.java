@@ -41,6 +41,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.mysql.jdbc.DatabaseMetaData;
 import com.sun.media.sound.InvalidFormatException;
 
 /**
@@ -104,6 +105,7 @@ public class QrGenerator extends HttpServlet {
 		boolean caseSe = false;
 
 		connection = connectDatabase();
+		checkTable();
 
 		int width = 140;
 		int height = 140;
@@ -456,6 +458,25 @@ public class QrGenerator extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	public void checkTable() {
+		try {
+			DatabaseMetaData databaseMetaData = (DatabaseMetaData) connection
+					.getMetaData();
+			ResultSet tables = databaseMetaData.getTables(null, null,
+					"_identifier", null);
+			if (tables.next()) {
+			} else {
+				stmt = connection.createStatement();
+				String sql = "CREATE TABLE _identifier"
+						+ "(qrcode VARCHAR(255)not NULL UNIQUE, "
+						+ " qr_dateTime DATETIME not NULL)";
+				stmt.executeUpdate(sql);
+			}
+		} catch (SQLException e2) {
+			e2.printStackTrace();
 		}
 	}
 
