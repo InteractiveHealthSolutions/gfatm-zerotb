@@ -306,7 +306,7 @@ public class QrGenerator extends HttpServlet {
 
 			else {
 				while (qrCollection.size() != randomRange) {
-					if (countValue != breakValue) {
+					if (countValue < breakValue) {
 						String qrCode = locationText;
 						qrCode += StringUtil.randomString(range, numeric,
 								alphaNu, caseSe);
