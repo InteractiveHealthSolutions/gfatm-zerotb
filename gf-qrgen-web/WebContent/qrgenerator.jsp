@@ -1,5 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+	
+	<%! String selection; String duplicates ;String prefix1; String appendDate;%>
+	
+	<%
+	prefix1 = request.getParameter("prefix");
+	selection = request.getParameter("typeSelection");
+	
+
+	if(prefix1 == null){
+		prefix1 = "";
+	}
+	
+	%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
@@ -382,9 +395,10 @@ function isAlphaNumeric(e) {
 							<th style="width: 1.3in">Type</th>
 							<td style="padding-left: 23px; width: 3.5in"><input
 								type="radio" id="serialBtn" value="serial" checked
-								onclick="changeForm()" name="typeSelection">Serial <input
+								onclick="changeForm()" name="typeSelection"  <%= ("serial".equals(selection) ? "checked" : "") %>  >Serial <input
 								type="radio" id="randomBtn" value="random"
 								onclick="changeForm()" name="typeSelection"
+								 <%= ("random".equals(selection) ? "checked" : "") %>
 								style="margin-left: 25px">Random</td>
 						</tr>
 
@@ -410,7 +424,7 @@ function isAlphaNumeric(e) {
 							<th>Prefix</th>
 							<td style="padding-left: 23px"><input name="prefix"
 								size="50" maxlength="10" class="form-control input"
-								id="prefixId" required="true"
+								id="prefixId" required="true" value="<%=prefix1%>"
 								onkeypress="return isAlphaNumeric(event)" />
 								</td>
 						</tr>

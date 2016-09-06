@@ -244,7 +244,7 @@ public class QrGenerator extends HttpServlet {
 			int countValue = 0;
 			int randomRange = Integer.parseInt(initialRange);
 
-			if (alphanumeric != null && casesensitive != null) {
+	/*		if (alphanumeric != null && casesensitive != null) {
 				breakValue = 62;
 				mulValue = 62;
 			}
@@ -259,9 +259,10 @@ public class QrGenerator extends HttpServlet {
 				mulValue = 10;
 			}
 
-			for (int i = 1; i < randomRange; i++) {
+			for (int i = 1; i < range; i++) {
 				breakValue *= mulValue;
-			}
+			}*/
+			
 
 			if (alphanumeric != null) {
 				alphaNu = true;
@@ -274,7 +275,7 @@ public class QrGenerator extends HttpServlet {
 			if (dateCheck) {
 				String date = formatDate(dateFormat, date1);
 				while (qrCollection.size() != randomRange) {
-					if (countValue < breakValue) {
+					if (countValue <= 30) {
 						String qrCode = locationText + date;
 						qrCode += StringUtil.randomString(range, numeric,
 								alphaNu, caseSe);
@@ -286,10 +287,14 @@ public class QrGenerator extends HttpServlet {
 							try {
 								createQRImage(qrCode, width, height);
 								qrCollection.add(qrCode);
-								countValue++;
+								countValue = 0;
 							} catch (WriterException | DocumentException e) {
 								e.printStackTrace();
 							}
+						}
+						
+						else {
+							countValue++;
 						}
 					}
 
@@ -308,7 +313,7 @@ public class QrGenerator extends HttpServlet {
 
 			else {
 				while (qrCollection.size() != randomRange) {
-					if (countValue < breakValue) {
+					if (countValue <= 30) {
 						String qrCode = locationText;
 						qrCode += StringUtil.randomString(range, numeric,
 								alphaNu, caseSe);
@@ -320,10 +325,14 @@ public class QrGenerator extends HttpServlet {
 							try {
 								createQRImage(qrCode, width, height);
 								qrCollection.add(qrCode);
-								countValue++;
+								countValue =0;
 							} catch (WriterException | DocumentException e) {
 								e.printStackTrace();
 							}
+						}
+						
+						else {
+							countValue ++;
 						}
 					}
 
