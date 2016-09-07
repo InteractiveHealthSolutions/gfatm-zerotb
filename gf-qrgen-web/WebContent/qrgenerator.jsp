@@ -14,9 +14,7 @@
 	String to;
 	String range;
 	String layout;
-	String copies;
-	
-%>
+	String copies;%>
 
 <%
 	prefix1 = request.getParameter("prefix");
@@ -28,11 +26,28 @@
 	length = request.getParameter("serialNumberList");
 	alphanumeric = request.getParameter("alphanumeric");
 	caseSen = request.getParameter("casesensitive");
+	range = request.getParameter("rangeForRandom");
+	layout = request.getParameter("column");
+	copies = request.getParameter("copiesList");
+	from = request.getParameter("from");
+	to = request.getParameter("to");
 	if (prefix1 == null) {
 		prefix1 = "";
 	}
+
+	if (range == null) {
+		range = "";
+	}
 	
-	if(date == null){
+	if (from == null) {
+		from = "";
+	}
+	
+	if (to == null) {
+		to = "";
+	}
+
+	if (date == null) {
 		date = "";
 	}
 %>
@@ -115,6 +130,7 @@ function isNumber(evt) {
 $( document ).ready(function() {
     enableFormat();
     changeForm();
+    enableSensitive();
 });
 </script>
 
@@ -388,6 +404,7 @@ function isAlphaNumeric(e) {
 		}
 
 		else if (random.checked == true) {
+			enableSensitive();
 			alpha.style.display = 'inline-block';
 			sensitive.style.display = 'inline-block';
 			duplicateCheckBox.checked = false;
@@ -438,10 +455,12 @@ function isAlphaNumeric(e) {
 							<th>Text Type</th>
 							<td style="padding-left: 23px"><input id="alphanumericBox"
 								type="checkbox" name="alphanumeric" style="display: none"
-								onclick="enableSensitive()" <%=("on".equals(alphanumeric) ? "checked" : "")%> disabled> <label
-								id="alphaLbl" style="font-weight: normal; display: none">Alphanumeric</label>
+								onclick="enableSensitive()"
+								<%=("on".equals(alphanumeric) ? "checked" : "")%> disabled>
+								<label id="alphaLbl" style="font-weight: normal; display: none">Alphanumeric</label>
 								<br> <input id="caseSenstiveBox" type="checkbox"
-								style="display: none" name="casesensitive"  <%=("on".equals(caseSen) ? "checked" : "")%>  disabled> <label
+								style="display: none" name="casesensitive"
+								<%=("on".equals(caseSen) ? "checked" : "")%> disabled> <label
 								id="senseLbl" style="font-weight: normal; display: none">Case
 									Sensitive</label></td>
 						</tr>
@@ -449,7 +468,8 @@ function isAlphaNumeric(e) {
 						<tr id="duplicateChk">
 							<th>Allow Duplicates</th>
 							<td style="padding-left: 23px"><input id="duplicateBox"
-								type="checkbox" name="duplicates" <%=("on".equals(duplicates) ? "checked" : "")%> ></td>
+								type="checkbox" name="duplicates"
+								<%=("on".equals(duplicates) ? "checked" : "")%>></td>
 						</tr>
 
 						<tr>
@@ -462,21 +482,33 @@ function isAlphaNumeric(e) {
 						<tr>
 							<th>Append Date</th>
 							<td style="padding-left: 23px"><input id="chkBox"
-								type="checkbox" name="appendDate" onclick="enableFormat()" <%=("on".equals(appendDate) ? "checked" : "")%> ></td>
+								type="checkbox" name="appendDate" onclick="enableFormat()"
+								<%=("on".equals(appendDate) ? "checked" : "")%>></td>
 						</tr>
 
 						<tr>
 							<th>Date Format</th>
 							<td style="padding-left: 23px"><select id="dFormatList"
 								name="dateFormatList" class="form-control input" required="true"
-								disabled >
-									<option value="yyMMdd"   <%=("yyMMdd".equals(dateFormat) ? "selected = 'selected'" : "")%> >yyMMdd</option>
-									<option value="yyMM"   <%=("yyMM".equals(dateFormat) ? "selected = 'selected'" : "")%> >yyMM</option>
-									<option value="yy" <%=("yy".equals(dateFormat) ? "selected = 'selected'" : "")%>  >yy</option>
-									<option value="yyyyMMdd"   <%=("yyyyMMdd".equals(dateFormat) ? "selected = 'selected'" : "")%> >yyyyMMdd</option>
-									<option value="MMyyyy"  <%=("MMyyyy".equals(dateFormat) ? "selected = 'selected'" : "")%> >MMyyyy</option>
-									<option value="ddMMyy"   <%=("ddMMyy".equals(dateFormat) ? "selected = 'selected'" : "")%> >ddMMyy</option>
-									<option value="MMyy"  <%=("MMyy".equals(dateFormat) ? "selected = 'selected'" : "")%> >MMyy</option>
+								disabled>
+									<option value="yyMMdd"
+										<%=("yyMMdd".equals(dateFormat) ? "selected = 'selected'"
+					: "")%>>yyMMdd</option>
+									<option value="yyMM"
+										<%=("yyMM".equals(dateFormat) ? "selected = 'selected'" : "")%>>yyMM</option>
+									<option value="yy"
+										<%=("yy".equals(dateFormat) ? "selected = 'selected'" : "")%>>yy</option>
+									<option value="yyyyMMdd"
+										<%=("yyyyMMdd".equals(dateFormat) ? "selected = 'selected'"
+					: "")%>>yyyyMMdd</option>
+									<option value="MMyyyy"
+										<%=("MMyyyy".equals(dateFormat) ? "selected = 'selected'"
+					: "")%>>MMyyyy</option>
+									<option value="ddMMyy"
+										<%=("ddMMyy".equals(dateFormat) ? "selected = 'selected'"
+					: "")%>>ddMMyy</option>
+									<option value="MMyy"
+										<%=("MMyy".equals(dateFormat) ? "selected = 'selected'" : "")%>>MMyy</option>
 							</select></td>
 						</tr>
 						<tr>
@@ -499,11 +531,16 @@ function isAlphaNumeric(e) {
 							<td style="padding-left: 23px"><select
 								name="serialNumberList" class="form-control input"
 								required="true" id="serialNum">
-									<option value="2"  <%=("2".equals(length) ? "selected = 'selected'" : "")%>>2</option>
-									<option value="3"  <%=("3".equals(length) ? "selected = 'selected'" : "")%>>3</option>
-									<option value="4"  <%=("4".equals(length) ? "selected = 'selected'" : "")%>>4</option>
-									<option value="5"  <%=("5".equals(length) ? "selected = 'selected'" : "")%>>5</option>
-									<option value="6"  <%=("6".equals(length) ? "selected = 'selected'" : "")%>>6</option>
+									<option value="2"
+										<%=("2".equals(length) ? "selected = 'selected'" : "")%>>2</option>
+									<option value="3"
+										<%=("3".equals(length) ? "selected = 'selected'" : "")%>>3</option>
+									<option value="4"
+										<%=("4".equals(length) ? "selected = 'selected'" : "")%>>4</option>
+									<option value="5"
+										<%=("5".equals(length) ? "selected = 'selected'" : "")%>>5</option>
+									<option value="6"
+										<%=("6".equals(length) ? "selected = 'selected'" : "")%>>6</option>
 							</select></td>
 						</tr>
 
@@ -514,13 +551,13 @@ function isAlphaNumeric(e) {
 
 									<div class="col-md-6">
 										From<input name="from" type="number" min="1"
-											class="form-control input" required="true" id="fromBox"
+											class="form-control input"  value="<%=from%>" required="true" id="fromBox"
 											onkeypress="return isNumber(event)" />
 									</div>
 
 									<div class="col-md-6">
 										To<input id="toBox" name="to" type="number" min="1"
-											class="form-control input" required="true"
+											class="form-control input"  value="<%=to%>" required="true"
 											onkeypress="return isNumber(event)" />
 									</div>
 
@@ -534,7 +571,8 @@ function isAlphaNumeric(e) {
 							<th>Range</th>
 							<td style="padding-left: 23px"><input name="rangeForRandom"
 								type="number" id="rangeBox" class="form-control input"
-								required="true" min="1" onkeypress="return isNumber(event)" /></td>
+								required="true" min="1" value="<%=range%>"
+								onkeypress="return isNumber(event)" /></td>
 						</tr>
 
 						<tr>
@@ -542,10 +580,14 @@ function isAlphaNumeric(e) {
 							<td style="padding-left: 23px">column(s)<select
 								name="column" class="form-control input" required="true"
 								id="columnBox">
-									<option value="3">3</option>
-									<option value="4">4</option>
-									<option value="5">5</option>
-									<option value="6">6</option>
+									<option value="3"
+										<%=("3".equals(layout) ? "selected = 'selected'" : "")%>>3</option>
+									<option value="4"
+										<%=("4".equals(layout) ? "selected = 'selected'" : "")%>>4</option>
+									<option value="5"
+										<%=("5".equals(layout) ? "selected = 'selected'" : "")%>>5</option>
+									<option value="6"
+										<%=("6".equals(layout) ? "selected = 'selected'" : "")%>>6</option>
 							</select></td>
 						</tr>
 
@@ -553,10 +595,14 @@ function isAlphaNumeric(e) {
 							<th>Copies per Code</th>
 							<td style="padding-left: 23px"><select name="copiesList"
 								class="form-control input" required="true" id="copyBox">
-									<option value="1">1</option>
-									<option value="2">2</option>
-									<option value="3">3</option>
-									<option value="4">4</option>
+									<option value="1"
+										<%=("1".equals(copies) ? "selected = 'selected'" : "")%>>1</option>
+									<option value="2"
+										<%=("2".equals(copies) ? "selected = 'selected'" : "")%>>2</option>
+									<option value="3"
+										<%=("3".equals(copies) ? "selected = 'selected'" : "")%>>3</option>
+									<option value="4"
+										<%=("4".equals(copies) ? "selected = 'selected'" : "")%>>4</option>
 							</select></td>
 						</tr>
 

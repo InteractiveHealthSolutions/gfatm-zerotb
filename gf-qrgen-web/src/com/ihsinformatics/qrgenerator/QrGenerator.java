@@ -244,25 +244,17 @@ public class QrGenerator extends HttpServlet {
 			int countValue = 0;
 			int randomRange = Integer.parseInt(initialRange);
 
-	/*		if (alphanumeric != null && casesensitive != null) {
-				breakValue = 62;
-				mulValue = 62;
-			}
-
-			else if (alphanumeric != null) {
-				breakValue = 32;
-				mulValue = 32;
-			}
-
-			else {
-				breakValue = 10;
-				mulValue = 10;
-			}
-
-			for (int i = 1; i < range; i++) {
-				breakValue *= mulValue;
-			}*/
-			
+			/*
+			 * if (alphanumeric != null && casesensitive != null) { breakValue =
+			 * 62; mulValue = 62; }
+			 * 
+			 * else if (alphanumeric != null) { breakValue = 32; mulValue = 32;
+			 * }
+			 * 
+			 * else { breakValue = 10; mulValue = 10; }
+			 * 
+			 * for (int i = 1; i < range; i++) { breakValue *= mulValue; }
+			 */
 
 			if (alphanumeric != null) {
 				alphaNu = true;
@@ -292,7 +284,7 @@ public class QrGenerator extends HttpServlet {
 								e.printStackTrace();
 							}
 						}
-						
+
 						else {
 							countValue++;
 						}
@@ -301,7 +293,9 @@ public class QrGenerator extends HttpServlet {
 					else {
 						deleteQrCode();
 						success = false;
-						String status = "All combinations already created. Choose different values.";
+						String status = "All combinations already created or cannot create "
+								+ randomRange
+								+ " unique combinations using these values. Please choose different values.";
 						ServletContext sc = this.getServletContext();
 						RequestDispatcher rd = sc.getRequestDispatcher("/");
 						request.setAttribute("errorMsg", status);
@@ -325,21 +319,23 @@ public class QrGenerator extends HttpServlet {
 							try {
 								createQRImage(qrCode, width, height);
 								qrCollection.add(qrCode);
-								countValue =0;
+								countValue = 0;
 							} catch (WriterException | DocumentException e) {
 								e.printStackTrace();
 							}
 						}
-						
+
 						else {
-							countValue ++;
+							countValue++;
 						}
 					}
 
 					else {
 						deleteQrCode();
 						success = false;
-						String status = "All combinations already created. Choose different values.";
+						String status = "All combinations already created or cannot create "
+								+ randomRange
+								+ " unique combinations using these values. Please choose different values.";
 						ServletContext sc = this.getServletContext();
 						RequestDispatcher rd = sc.getRequestDispatcher("/");
 						request.setAttribute("errorMsg", status);
