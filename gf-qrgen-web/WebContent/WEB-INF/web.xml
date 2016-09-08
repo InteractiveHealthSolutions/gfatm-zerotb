@@ -11,12 +11,12 @@
   	<servlet>
 		<description></description>
 		<display-name>QrGenerator</display-name>
-		<servlet-name>QrGenerator</servlet-name>
-		<servlet-class>com.ihsinformatics.qrgenerator.QrGenerator</servlet-class>
+		<servlet-name>QrGeneratorServlet</servlet-name>
+		<servlet-class>com.ihsinformatics.qrgenerator.QrGeneratorServlet</servlet-class>
 	</servlet>
 	
 	<servlet-mapping>
-	<servlet-name>QrGenerator</servlet-name>
+	<servlet-name>QrGeneratorServlet</servlet-name>
 	<url-pattern>/qrgenerator</url-pattern>
 	</servlet-mapping>
 	

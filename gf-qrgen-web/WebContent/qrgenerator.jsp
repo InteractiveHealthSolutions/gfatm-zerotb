@@ -1,3 +1,6 @@
+<!--  @author Haris Asif - haris.asif@ihsinformatics.com -->
+
+
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 
@@ -38,11 +41,11 @@
 	if (range == null) {
 		range = "";
 	}
-	
+
 	if (from == null) {
 		from = "";
 	}
-	
+
 	if (to == null) {
 		to = "";
 	}
@@ -551,13 +554,13 @@ function isAlphaNumeric(e) {
 
 									<div class="col-md-6">
 										From<input name="from" type="number" min="1"
-											class="form-control input"  value="<%=from%>" required="true" id="fromBox"
-											onkeypress="return isNumber(event)" />
+											class="form-control input" value="<%=from%>" required="true"
+											id="fromBox" onkeypress="return isNumber(event)" />
 									</div>
 
 									<div class="col-md-6">
 										To<input id="toBox" name="to" type="number" min="1"
-											class="form-control input"  value="<%=to%>" required="true"
+											class="form-control input" value="<%=to%>" required="true"
 											onkeypress="return isNumber(event)" />
 									</div>
 
