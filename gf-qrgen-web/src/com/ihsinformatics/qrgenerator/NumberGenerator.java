@@ -10,16 +10,15 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 
 package com.ihsinformatics.qrgenerator;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.List;
 
-import com.google.zxing.WriterException;
-import com.itextpdf.text.DocumentException;
-import com.sun.media.sound.InvalidFormatException;
+import com.ihsinformatics.util.ChecksumUtil;
+import com.ihsinformatics.util.CommandType;
+import com.ihsinformatics.util.DatabaseUtil;
+import com.ihsinformatics.util.DateTimeUtil;
+import com.ihsinformatics.util.StringUtil;
 
 /**
  * @author Haris Asif - haris.asif@ihsinformatics.com
@@ -27,217 +26,149 @@ import com.sun.media.sound.InvalidFormatException;
  */
 public class NumberGenerator {
 
-	DatabaseUtil datebaseUtil = new DatabaseUtil();
-	QrGeneratorServlet qrGenerator;
-	String date = "";
-	String qrCodeText = "";
-	String qrText = "";
-	int width = 140;
-	int height = 140;
-	boolean isDuplicate = false;
-
-	/**
-	 * Parameterized Constructor
-	 * @param qrGeneratorServlet is object passed QrGeneratorServelet
-	 */
-	public NumberGenerator(QrGeneratorServlet qrGeneratorServlet) {
-		this.qrGenerator = qrGeneratorServlet;
-	}
+	DatabaseUtil dbUtil;
 
 	/**
 	 * Default Constructor
 	 */
-	public NumberGenerator() {
- 
+	public NumberGenerator(String url, String dbName, String driverName,
+			String userName, String password) {
+		dbUtil = new DatabaseUtil();
+		dbUtil.setConnection(url, dbName, driverName, userName, password);
+	}
+
+	public List<String> generateSerial(int length, int rangeFrom, int rangeTo,
+			boolean allowDuplicates) {
+		return generateSerial(null, length, rangeFrom, rangeTo, allowDuplicates);
+	}
+
+	public List<String> generateSerial(String prefix, int length,
+			int rangeFrom, int rangeTo, boolean allowDuplicates) {
+		return generateSerial(prefix, length, rangeFrom, rangeTo, null, null,
+				allowDuplicates);
 	}
 
 	/**
-	 * This function creates qrcode serialized version
-	 * @param serialList is the serial number format
-	 * @param dateCheck is the parameter to check if date needs to be append
-	 * @param date1 is date that appends in qrcode text
-	 * @param connection is database connection for communicating with the database
+	 * This function generates Strings in a series
+	 * 
+	 * @param prefix
+	 * @param length
+	 * @param rangeFrom
+	 * @param rangeTo
+	 * @param hasDate
+	 * @param date
 	 * @return
 	 */
-	public boolean generateSerial(ArrayList<String> serialList,
-			boolean dateCheck, Date date1, Connection connection) {
-
-		String serialFormat = serialList.get(0);
-		int width = 140;
-		int height = 140;
-		String limit = serialList.get(1);
-		String duplicate = serialList.get(2);
-		boolean allowDuplicates = false;
-		int from = Integer.parseInt(serialList.get(3));
-		int to = Integer.parseInt(serialList.get(4));
-		String dateFormat = serialList.get(5);
-		String locationText = serialList.get(6);
-		int tableCount = 1;
-
-		char old = serialFormat.charAt(2);
-		serialFormat = serialFormat.replace(old, limit.charAt(0));
-
-		if (duplicate == null) {
-			allowDuplicates = false;
-		} else {
-			allowDuplicates = true;
+	public List<String> generateSerial(String prefix, int length,
+			int rangeFrom, int rangeTo, Date date, String dateFormat,
+			boolean allowDuplicates) {
+		List<String> codes = new ArrayList<String>();
+		String serialFormat = "%0" + String.valueOf(length) + "d";
+		String datePart = "";
+		String prefixPart = "";
+		if (date != null) {
+			datePart = DateTimeUtil.formatDate(date, dateFormat);
 		}
-
-		if (dateCheck) {
-			date = formatDate(dateFormat, date1);
-			qrText = locationText + date;
+		if (prefix != null) {
+			prefixPart = prefix;
 		}
-
-		else {
-			qrText = locationText;
-		}
-
-		for (int i = from; i <= to; i++) {
+		for (int i = rangeFrom; i <= rangeTo; i++) {
+			String newCode = prefixPart + datePart
+					+ String.format(serialFormat, i);
 			try {
-				qrCodeText = qrText + String.format(serialFormat, i);
-				qrCodeText += "-" + calculateLuhnDigit(qrCodeText);
-				isDuplicate = datebaseUtil.insertQrCode(qrCodeText, connection);
-
+				newCode += "-" + ChecksumUtil.getLuhnChecksum(newCode);
+				String query = "insert into _identifier values ('" + newCode
+						+ "', current_timestamp())";
+				Object result = dbUtil.runCommand(CommandType.INSERT, query);
 				if (!allowDuplicates) {
-					if (isDuplicate) {
-						qrGenerator.createQRImage(qrCodeText, width, height);
-					}
-
-					else {
-						datebaseUtil.deleteQrCode(connection);
-						return false;
+					if (result.toString().equals("false")) {
+						for (String code : codes) {
+							String query1 = "delete from _identifier where qrcode='"
+									+ code + "';";
+//							String filter = "where id in (" + "'101', '102', '102'" +  ")";
+//							dbUtil.getTotalRows("_identifier", filter);
+							dbUtil.runCommand(CommandType.DELETE, query1);
+						}
+						return null;
 					}
 				}
-
-				else {
-					datebaseUtil.insertQrCode(qrCodeText, connection);
-					qrGenerator.createQRImage(qrCodeText, width, height);
-				}
-
+				codes.add(newCode);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-
-		return true;
+		return codes;
 	}
 
-	/**
-	 * This function creates random qrcode
-	 * @param randomList is array list which has required values for random qr code 
-	 * @param dateCheck is used to check if user needs date in qrcode
-	 * @param date1 is date that needs to be appended
-	 * @param connection is database connection
-	 * @return
-	 * @throws IOException
-	 */
-	public boolean generateRandom(ArrayList<String> randomList,
-			boolean dateCheck, Date date1, Connection connection)
-			throws IOException {
+	public List<String> generateRandom(int length, int range,
+			boolean alphanumeric, boolean casesensitive) throws Exception {
+		return generateRandom(null, length, range, null, null, alphanumeric,
+				casesensitive);
+	}
 
-		String dateFormat = randomList.get(0);
-		String locationText = randomList.get(1);
-		String alphanumeric = randomList.get(2);
-		String casesensitive = randomList.get(3);
-		String initialRange = randomList.get(4);
-		String limit = randomList.get(5);
+	public List<String> generateRandom(String prefix, int length, int range,
+			boolean alphanumeric, boolean casesensitive) throws Exception {
+		return generateRandom(prefix, length, range, null, null, alphanumeric,
+				casesensitive);
+	}
 
-		int range = Integer.parseInt(limit);
-		boolean alphaNu = false;
-		boolean caseSe = false;
-		HashSet<String> qrCollection = new HashSet<String>();
+	public List<String> generateRandom(String prefix, int length, int range,
+			Date date, String dateFormat, boolean alphanumeric,
+			boolean caseSensitive) {
+
+		String prefixPart = "";
+		String newCode = "";
+		String datePart = "";
 		int countValue = 0;
-		int randomRange = Integer.parseInt(initialRange);
 
-		if (alphanumeric != null) {
-			alphaNu = true;
+		List<String> codes = new ArrayList<String>();
 
-			if (casesensitive != null) {
-				caseSe = true;
-			}
+		if (prefix != null) {
+			prefixPart = prefix;
 		}
 
-		if (dateCheck) {
-			date = formatDate(dateFormat, date1);
-			qrText = locationText + date;
+		if (date != null) {
+			datePart = DateTimeUtil.formatDate(date, dateFormat);
 		}
 
-		else {
-			qrText = locationText;
-		}
+		Double failRange = Math.pow(length, length);
+		int totalAttemps = failRange.intValue();
+		StringUtil strUtil = new StringUtil();
+		while (codes.size() != range) {
+			if (countValue <= totalAttemps) {
 
-		while (qrCollection.size() != randomRange) {
-			if (countValue <= 20) {
-
-				qrCodeText = qrText
-						+ StringUtil.randomString(range, true, alphaNu, caseSe);
-				qrCodeText += "-" + calculateLuhnDigit(qrCodeText);
-
-				isDuplicate = !(datebaseUtil.insertQrCode(qrCodeText,
-						connection));
-
-				if (!isDuplicate) {
-					try {
-						qrGenerator.createQRImage(qrCodeText, width, height);
-						qrCollection.add(qrCodeText);
-						countValue = 0;
-					} catch (WriterException | DocumentException e) {
-						e.printStackTrace();
+				newCode = prefixPart
+						+ datePart
+						+ strUtil.randomString(length, true, alphanumeric,
+								caseSensitive);
+				try {
+					newCode += "-" + ChecksumUtil.getLuhnChecksum(newCode);
+					String query = "insert into _identifier values ('"
+							+ newCode + "', current_timestamp())";
+					Object result = dbUtil
+							.runCommand(CommandType.INSERT, query);
+					if (!result.toString().equals("1")) {
+						countValue++;
 					}
-				}
 
-				else {
-					countValue++;
+					else {
+						codes.add(newCode);
+						countValue = 0;
+					}
+
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 
+			else if(codes.size() > 0) {
+				return codes;
+			}
+			
 			else {
-				datebaseUtil.deleteQrCode(connection);
-				return false;
+				return null;
 			}
 		}
-
-		return true;
-	}
-
-	/**
-	 * @param format is the format that user selected on interface
-	 * @param date is date user selected
-	 * @return
-	 */
-	private String formatDate(String format, Date date) {
-
-		return new SimpleDateFormat(format).format(date);
-	}
-
-	/**
-	 * This function calculates luhn digit which is appended in qrcode
-	 * @param idWithoutCheckdigit
-	 * @return
-	 * @throws InvalidFormatException
-	 */
-	public static int calculateLuhnDigit(String idWithoutCheckdigit)
-			throws InvalidFormatException {
-		String validChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVYWXZ_-";
-		idWithoutCheckdigit = idWithoutCheckdigit.trim().toUpperCase();
-		int sum = 0;
-		for (int i = 0; i < idWithoutCheckdigit.length(); i++) {
-			char ch = idWithoutCheckdigit.charAt(idWithoutCheckdigit.length()
-					- i - 1);
-			if (validChars.indexOf(ch) == -1)
-				throw new InvalidFormatException("\"" + ch
-						+ "\" is an invalid character");
-			int digit = (int) ch - 48;
-			int weight;
-			if (i % 2 == 0) {
-				weight = (2 * digit) - (int) (digit / 5) * 9;
-			} else {
-				weight = digit;
-			}
-			sum += weight;
-		}
-		sum = Math.abs(sum) + 10;
-		return (10 - (sum % 10)) % 10;
-
+		return codes;
 	}
 }

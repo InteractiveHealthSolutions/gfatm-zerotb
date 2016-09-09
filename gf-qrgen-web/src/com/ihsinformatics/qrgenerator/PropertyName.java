@@ -16,7 +16,8 @@ package com.ihsinformatics.qrgenerator;
  */
 public class PropertyName {
 	public static final String JDBC_DRIVER = "JDBC.driver";
-	public static final String QRGENERATOR_CONNECTION_URL = "qrgenerator.db.url";
-	public static final String QRGENERATOR_USER = "qrgenerator.user";
-	public static final String QRGENERATOR_PASSWORD = "qrgenerator.password";
+	public static final String CONNECTION_URL = "qrgenerator.db.url";
+	public static final String USERNAME = "qrgenerator.user";
+	public static final String PASSWORD = "qrgenerator.password";
+	public static final String DB_NAME = "qrgenerator.dbname";
 }

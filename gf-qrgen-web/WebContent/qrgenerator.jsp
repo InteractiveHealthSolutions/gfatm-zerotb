@@ -1,3 +1,4 @@
+
 <!--  @author Haris Asif - haris.asif@ihsinformatics.com -->
 
 
@@ -172,30 +173,25 @@ function isAlphaNumeric(e) {
 		var randomRange = document.getElementById("rangeBox");
 		
 		var reg = new RegExp('^[0-9]+$');
-		var reg1 = /[^A-Za-z0-9 ]/;
+		var reg1 = new RegExp('[a-zA-Z0-9]*[a-zA-Z]*');
 		
 		var splitter = date.value.split("-");
 		
 		var defaultRange = "9";
 		var val = serialValue - 1;
 
-		if (serial.checked == true) {
+		
+		 if (serial.checked == true) {
 
-			if (prefix.value == "") {
-				error.innerHTML = "Prefix Missing!!";
-
+			if(prefix.value != "" && prefix.value.trim() == ""){
+					error.innerHTML = "Incorrect Prefix Value!!";
 			}
-
-			else if (!prefix.value.replace(/\s/g, '').length) {
-				error.innerHTML = "Prefix Missing!!";
+					
+			else if(prefix.value != "" &&  /[^a-zA-Z0-9]/.test(prefix.value)){
+						error.innerHTML = "Incorrect Prefix Value!!";
 			}
-			
-			else if(reg1.test(prefix.value)){
-				error.innerHTML = "Incorrect Prefix Value!!";
-			}
-			
-
-			else if (appendDate.checked && date.value == "") {
+			 
+			else if(appendDate.checked && date.value == "") {
 				error.innerHTML = "Date Missing!!";
 
 			}
@@ -301,19 +297,15 @@ function isAlphaNumeric(e) {
 				}
 			}
 
-			if (prefix.value == "") {
-				error.innerHTML = "Prefix Missing!!";
-
-			}
-
-			else if (!prefix.value.replace(/\s/g, '').length) {
-				error.innerHTML = "Prefix Missing!!";
-			}
 			
-			else if(reg1.test(prefix.value)){
+			if(prefix.value != "" && prefix.value.trim() == ""){
 				error.innerHTML = "Incorrect Prefix Value!!";
 			}
-
+				
+			else if(prefix.value != "" &&  /[^a-zA-Z0-9]/.test(prefix.value)){
+					error.innerHTML = "Incorrect Prefix Value!!";
+			}
+			
 			else if (appendDate.checked && date.value == "") {
 				error.innerHTML = "Date Missing!!";
 
