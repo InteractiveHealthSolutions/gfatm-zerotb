@@ -10,6 +10,8 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 
 package com.ihsinformatics.qrgenerator;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +67,7 @@ public class NumberGenerator {
 		List<String> codes = new ArrayList<String>();
 		String serialFormat = "%0" + String.valueOf(length) + "d";
 		String datePart = "";
+		ResultSet rs = null;
 		String prefixPart = "";
 		if (date != null) {
 			datePart = DateTimeUtil.formatDate(date, dateFormat);
@@ -72,6 +75,25 @@ public class NumberGenerator {
 		if (prefix != null) {
 			prefixPart = prefix;
 		}
+
+		String start = prefixPart + datePart
+				+ String.format(serialFormat, rangeFrom);
+		String end = prefixPart + datePart
+				+ String.format(serialFormat, rangeTo);
+
+		String que = "select * from _identifier where id BETWEEN '" + start
+				+ "%' AND '" + end + "%';";
+		try {
+			Object res = dbUtil.runCommand(CommandType.SELECT, que);
+			if (!allowDuplicates && !res.equals(false)) {
+				return null;
+			}
+
+		} catch (InstantiationException | IllegalAccessException
+				| ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
+
 		for (int i = rangeFrom; i <= rangeTo; i++) {
 			String newCode = prefixPart + datePart
 					+ String.format(serialFormat, i);
@@ -79,19 +101,20 @@ public class NumberGenerator {
 				newCode += "-" + ChecksumUtil.getLuhnChecksum(newCode);
 				String query = "insert into _identifier values ('" + newCode
 						+ "', current_timestamp())";
-				Object result = dbUtil.runCommand(CommandType.INSERT, query);
-				if (!allowDuplicates) {
-					if (result.toString().equals("false")) {
-						for (String code : codes) {
-							String query1 = "delete from _identifier where qrcode='"
-									+ code + "';";
-//							String filter = "where id in (" + "'101', '102', '102'" +  ")";
-//							dbUtil.getTotalRows("_identifier", filter);
-							dbUtil.runCommand(CommandType.DELETE, query1);
-						}
-						return null;
-					}
-				}
+				dbUtil.runCommand(CommandType.INSERT, query);
+//				if (!allowDuplicates) {
+//					if (result.toString().equals("false")) {
+//						for (String code : codes) {
+//							String query1 = "delete from _identifier where id='"
+//									+ code + "';";
+//							// String filter = "where id in (" +
+//							// "'101', '102', '102'" + ")";
+//							// dbUtil.getTotalRows("_identifier", filter);
+//							dbUtil.runCommand(CommandType.DELETE, query1);
+//						}
+//						return null;
+//					}
+//				}
 				codes.add(newCode);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -161,10 +184,10 @@ public class NumberGenerator {
 				}
 			}
 
-			else if(codes.size() > 0) {
+			else if (codes.size() > 0) {
 				return codes;
 			}
-			
+
 			else {
 				return null;
 			}

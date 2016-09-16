@@ -12,6 +12,8 @@ package com.ihsinformatics.qrgenerator;
 
 import java.util.Properties;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,6 +30,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import com.itextpdf.text.pdf.qrcode.GF256;
 
 /**
  * Servlet implementation class QrGenerator
@@ -37,7 +42,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 public class QrGeneratorServlet extends HttpServlet {
-	
+
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -87,13 +92,11 @@ public class QrGeneratorServlet extends HttpServlet {
 		String Stringrange = request.getParameter("rangeForRandom");
 		property.load(propFile);
 
-		String url = property
-				.getProperty(PropertyName.CONNECTION_URL);
+		String url = property.getProperty(PropertyName.CONNECTION_URL);
 		String dbName = property.getProperty(PropertyName.DB_NAME);
 		String driverName = property.getProperty(PropertyName.JDBC_DRIVER);
 		String userName = property.getProperty(PropertyName.USERNAME);
-		String password = property
-				.getProperty(PropertyName.PASSWORD);
+		String password = property.getProperty(PropertyName.PASSWORD);
 
 		NumberGenerator numberGenerator = new NumberGenerator(url, dbName,
 				driverName, userName, password);
@@ -111,28 +114,18 @@ public class QrGeneratorServlet extends HttpServlet {
 
 			int from = Integer.parseInt(request.getParameter("from"));
 			int to = Integer.parseInt(request.getParameter("to"));
-
 			if (prefix == null && appendDate == null) {
 				numberList = numberGenerator.generateSerial(length, from, to,
 						allowDuplicates);
-			}
-
-			else if (prefix != null && appendDate == null) {
+			} else if (prefix != null && appendDate == null) {
 				numberList = numberGenerator.generateSerial(prefix, length,
 						from, to, allowDuplicates);
-			}
-
-			else {
+			} else {
 				numberList = numberGenerator.generateSerial(prefix, length,
 						from, to, date, dateFormat, allowDuplicates);
 			}
-
-		}
-
-		else {
-
-		 range = Integer.parseInt(Stringrange);
-
+		} else {
+			range = Integer.parseInt(Stringrange);
 			if (prefix == null && appendDate == null) {
 				try {
 					numberList = numberGenerator.generateRandom(length, range,
@@ -140,51 +133,71 @@ public class QrGeneratorServlet extends HttpServlet {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
-
-			else if (prefix != null && appendDate == null) {
+			} else if (prefix != null && appendDate == null) {
 				try {
 					numberList = numberGenerator.generateRandom(prefix, length,
 							range, alphanumeric, casesensitive);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
-
-			else {
+			} else {
 				numberList = numberGenerator.generateRandom(prefix, length,
 						range, date, dateFormat, alphanumeric, casesensitive);
 			}
-
 		}
 
 		if (numberList != null) {
+
+			String fileName = "QrCode" + String.valueOf(new Date().getTime())
+					+ ".pdf";
+
 			PdfUtil pdfUtil = new PdfUtil();
 			byteArrayOutputStream = pdfUtil.generatePdf(numberList, 140, 140,
 					copiesImage, columnLimit);
 
-			response.setHeader("Expires", "0");
-			response.setHeader("Cache-Control",
-					"must-revalidate, post-check=0, pre-check=0");
-			response.setHeader("Pragma", "public");
-			response.setContentType("application/pdf");
-			response.setHeader("Content-Disposition", "attachment; filename="
-					+ "QrCode" + ".pdf");
-			
-			
-//			if(numberList.size() != range){
-//				String status = "Warning!! System was able to generate " + numberList.size() + " qrcodes.";
-//				request.setAttribute("errorMsg", status);
-//			}
-//			
-//			else {
-//				
-//			}
+			if (numberList.size() != range) {
 
-			OutputStream os = response.getOutputStream();
-			byteArrayOutputStream.writeTo(os);
-			os.flush();
-			os.close();
+				String rootPath = System.getProperty("user.dir");
+				File directory = new File(rootPath + File.separator + "webapps"
+						+ File.separator + "gf-qrgen-web" + File.separator
+						+ "QrGeneratorFiles");
+				if (!directory.exists()) {
+					directory.mkdir();
+				}
+
+				FileOutputStream fileOutputStream = new FileOutputStream(
+						directory.toString() + File.separator + fileName);
+				fileOutputStream.write(byteArrayOutputStream.toByteArray());
+				fileOutputStream.close();
+
+				String link = request.getRequestURI();
+				link = link.substring(0, 13) + File.separator
+						+ "QrGeneratorFiles" + File.separator + fileName;
+				String status = "Warning!! System was able to generate "
+						+ numberList.size() + " QrCodes.";
+				ServletContext sc = this.getServletContext();
+				RequestDispatcher rd = sc.getRequestDispatcher("/");
+				request.setAttribute("linkDownload", link);
+				request.setAttribute("errorMsg", status);
+				request.setAttribute("linkTitle", "Download QrCodes File");
+				rd.forward(request, response);
+				return;
+			}
+
+			else {
+				response.setHeader("Expires", "0");
+				response.setHeader("Cache-Control",
+						"must-revalidate, post-check=0, pre-check=0");
+				response.setHeader("Pragma", "public");
+				response.setContentType("application/pdf");
+				response.setHeader("Content-Disposition",
+						"attachment; filename=" + fileName);
+
+				OutputStream os = response.getOutputStream();
+				byteArrayOutputStream.writeTo(os);
+				os.flush();
+				os.close();
+			}
 		}
 
 		else {
@@ -195,7 +208,5 @@ public class QrGeneratorServlet extends HttpServlet {
 			rd.forward(request, response);
 			return;
 		}
-
 	}
-
 }

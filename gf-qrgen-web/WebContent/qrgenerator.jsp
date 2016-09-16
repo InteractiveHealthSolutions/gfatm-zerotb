@@ -354,7 +354,6 @@ function isAlphaNumeric(e) {
 			}
 			
 			else {
-				error.innerHTML = "";
 				form.submit();
 			}
 
@@ -604,6 +603,12 @@ function isAlphaNumeric(e) {
 						<tr>
 							<td colspan="3" align="center" id="errorLbl"
 								style="color: red; font-weight: bold">${errorMsg}</td>
+						</tr>
+						
+						<tr>
+						<td colspan="3" align="center">
+						<a href= "${linkDownload}">${linkTitle}</a>
+						</td>
 						</tr>
 
 						<tr>
