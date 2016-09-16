@@ -85,7 +85,7 @@ public class NumberGenerator {
 				+ "%' AND '" + end + "%';";
 		try {
 			Object res = dbUtil.runCommand(CommandType.SELECT, que);
-			if (!allowDuplicates && !res.equals(false)) {
+			if (allowDuplicates == false &&  !res.equals("false")) {
 				return null;
 			}
 

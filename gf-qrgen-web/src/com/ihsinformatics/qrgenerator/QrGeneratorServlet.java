@@ -155,7 +155,7 @@ public class QrGeneratorServlet extends HttpServlet {
 			byteArrayOutputStream = pdfUtil.generatePdf(numberList, 140, 140,
 					copiesImage, columnLimit);
 
-			if (numberList.size() != range) {
+			if (numberList.size() != range && typeSelection.equals("random")) {
 
 				String rootPath = System.getProperty("user.dir");
 				File directory = new File(rootPath + File.separator + "webapps"
