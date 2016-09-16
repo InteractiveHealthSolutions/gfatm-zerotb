@@ -382,12 +382,14 @@ function isAlphaNumeric(e) {
 		var alphaLbl = document.getElementById('alphaLbl');
 		var senseLbl = document.getElementById('senseLbl');
 		var duplicates = document.getElementById('duplicateChk');
+		var link = document.getElementById('linkRow');
 		var duplicateCheckBox = document.getElementById('duplicateBox');
 
 		if (serial.checked == true) {
 			alpha.style.display = 'none';
 			sensitive.style.display = 'none';
 			alphaLbl.style.display = 'none';
+			link.style.display = 'none';
 			senseLbl.style.display = 'none';
 			alpha.checked = false;
 			sensitive.checked = false;
@@ -401,6 +403,7 @@ function isAlphaNumeric(e) {
 			enableSensitive();
 			alpha.style.display = 'inline-block';
 			sensitive.style.display = 'inline-block';
+			link.style.display = 'table-cell';
 			duplicateCheckBox.checked = false;
 			duplicates.style.display = 'none';
 			alphaLbl.style.display = 'inline-block';
@@ -606,7 +609,7 @@ function isAlphaNumeric(e) {
 						</tr>
 						
 						<tr>
-						<td colspan="3" align="center">
+						<td colspan="3" align="center" id="linkRow">
 						<a href= "${linkDownload}">${linkTitle}</a>
 						</td>
 						</tr>
