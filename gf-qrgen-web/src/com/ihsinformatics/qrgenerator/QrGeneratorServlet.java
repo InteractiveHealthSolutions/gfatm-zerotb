@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.ihsinformatics.util.VersionUtil;
 import com.itextpdf.text.pdf.qrcode.GF256;
 
 /**
@@ -43,6 +44,12 @@ import com.itextpdf.text.pdf.qrcode.GF256;
  */
 public class QrGeneratorServlet extends HttpServlet {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -875504184015776771L;
+	VersionUtil version = new VersionUtil(false, true, false, 0, 9, 1);
+	
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -174,12 +181,12 @@ public class QrGeneratorServlet extends HttpServlet {
 				link = link.substring(0, 13) + File.separator
 						+ "QrGeneratorFiles" + File.separator + fileName;
 				String status = "Warning!! System was able to generate "
-						+ numberList.size() + " QrCodes.";
+						+ numberList.size() + " QR Codes only.";
 				ServletContext sc = this.getServletContext();
 				RequestDispatcher rd = sc.getRequestDispatcher("/");
 				request.setAttribute("linkDownload", link);
 				request.setAttribute("errorMsg", status);
-				request.setAttribute("linkTitle", "Download QrCodes File");
+				request.setAttribute("linkTitle", "Download QR Codes File");
 				rd.forward(request, response);
 				return;
 			}

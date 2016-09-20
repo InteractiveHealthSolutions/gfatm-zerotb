@@ -102,19 +102,6 @@ public class NumberGenerator {
 				String query = "insert into _identifier values ('" + newCode
 						+ "', current_timestamp())";
 				dbUtil.runCommand(CommandType.INSERT, query);
-//				if (!allowDuplicates) {
-//					if (result.toString().equals("false")) {
-//						for (String code : codes) {
-//							String query1 = "delete from _identifier where id='"
-//									+ code + "';";
-//							// String filter = "where id in (" +
-//							// "'101', '102', '102'" + ")";
-//							// dbUtil.getTotalRows("_identifier", filter);
-//							dbUtil.runCommand(CommandType.DELETE, query1);
-//						}
-//						return null;
-//					}
-//				}
 				codes.add(newCode);
 			} catch (Exception e) {
 				e.printStackTrace();
