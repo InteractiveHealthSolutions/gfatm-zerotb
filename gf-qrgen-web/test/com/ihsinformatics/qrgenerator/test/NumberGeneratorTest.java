@@ -42,7 +42,7 @@ public class NumberGeneratorTest {
 	@Test
 	@Ignore
 	public void testGenerateSerial() {
-		List<String> list = obj.generateSerial(2, 1, 10, false);
+		List<String> list = obj.generateSerial(2, 1, 10, false, true);
 		assertTrue("Unable to generate serial codes of desired range.",
 				list.size() == 10);
 		Set<String> uniqueSet = new HashSet<String>();
@@ -58,7 +58,7 @@ public class NumberGeneratorTest {
 	public void testGenerateSerialWithPrefix() {
 		NumberGenerator obj = new NumberGenerator(url, dbName, driverName,
 				userName, password);
-		List<String> list = obj.generateSerial("H01", 3, 1, 500, false);
+		List<String> list = obj.generateSerial("H01", 3, 1, 500, false, true);
 		assertTrue("Unable to generate serial codes of desired range.",
 				list.size() == 500);
 		assertTrue("Unable to prepend prefix to serial codes.", list.get(0)
@@ -77,7 +77,7 @@ public class NumberGeneratorTest {
 		NumberGenerator obj = new NumberGenerator(url, dbName, driverName,
 				userName, password);
 		List<String> list = obj.generateSerial(null, 3, 1, 100, new Date(),
-				"yyyyMM", false);
+				"yyyyMM", false, true);
 		assertTrue("Unable to generate serial codes of desired range.",
 				list.size() == 100);
 		Set<String> uniqueSet = new HashSet<String>();
@@ -92,7 +92,7 @@ public class NumberGeneratorTest {
 	public void testGenerateRandom() throws Exception {
 		List<String> list;
 		int range = 600;
-		list = obj.generateRandom(2, range, true, false);
+		list = obj.generateRandom(2, range, true, false, true);
 		assertTrue("Unable to generate random codes of desired range.",
 				list.size() == range);
 	}
@@ -102,7 +102,7 @@ public class NumberGeneratorTest {
 	public void testGenerateUniqueRandom() {
 		List<String> list;
 		try {
-			list = obj.generateRandom(2, 300, true, false);
+			list = obj.generateRandom(2, 300, true, false, true);
 			assertTrue("Unable to generate random codes of desired range.",
 					list.size() == 300);
 			Set<String> uniqueSet = new HashSet<String>();

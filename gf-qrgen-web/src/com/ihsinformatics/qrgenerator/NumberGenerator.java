@@ -40,14 +40,16 @@ public class NumberGenerator {
 	}
 
 	public List<String> generateSerial(int length, int rangeFrom, int rangeTo,
-			boolean allowDuplicates) {
-		return generateSerial(null, length, rangeFrom, rangeTo, allowDuplicates);
+			boolean allowDuplicates, boolean allowCheckDigit) {
+		return generateSerial(null, length, rangeFrom, rangeTo,
+				allowDuplicates, allowCheckDigit);
 	}
 
 	public List<String> generateSerial(String prefix, int length,
-			int rangeFrom, int rangeTo, boolean allowDuplicates) {
+			int rangeFrom, int rangeTo, boolean allowDuplicates,
+			boolean allowCheckDigit) {
 		return generateSerial(prefix, length, rangeFrom, rangeTo, null, null,
-				allowDuplicates);
+				allowDuplicates, allowCheckDigit);
 	}
 
 	/**
@@ -63,7 +65,7 @@ public class NumberGenerator {
 	 */
 	public List<String> generateSerial(String prefix, int length,
 			int rangeFrom, int rangeTo, Date date, String dateFormat,
-			boolean allowDuplicates) {
+			boolean allowDuplicates, boolean allowCheckDigit) {
 		List<String> codes = new ArrayList<String>();
 		String serialFormat = "%0" + String.valueOf(length) + "d";
 		String datePart = "";
@@ -85,7 +87,7 @@ public class NumberGenerator {
 				+ "%' AND '" + end + "%';";
 		try {
 			Object res = dbUtil.runCommand(CommandType.SELECT, que);
-			if (allowDuplicates == false &&  !res.equals("false")) {
+			if (allowDuplicates == false && !res.equals("false")) {
 				return null;
 			}
 
@@ -98,7 +100,9 @@ public class NumberGenerator {
 			String newCode = prefixPart + datePart
 					+ String.format(serialFormat, i);
 			try {
-				newCode += "-" + ChecksumUtil.getLuhnChecksum(newCode);
+				if (allowCheckDigit == true) {
+					newCode += "-" + ChecksumUtil.getLuhnChecksum(newCode);
+				}
 				String query = "insert into _identifier values ('" + newCode
 						+ "', current_timestamp())";
 				dbUtil.runCommand(CommandType.INSERT, query);
@@ -111,20 +115,22 @@ public class NumberGenerator {
 	}
 
 	public List<String> generateRandom(int length, int range,
-			boolean alphanumeric, boolean casesensitive) throws Exception {
+			boolean alphanumeric, boolean casesensitive, boolean allowCheckDigit)
+			throws Exception {
 		return generateRandom(null, length, range, null, null, alphanumeric,
-				casesensitive);
+				casesensitive, allowCheckDigit);
 	}
 
 	public List<String> generateRandom(String prefix, int length, int range,
-			boolean alphanumeric, boolean casesensitive) throws Exception {
+			boolean alphanumeric, boolean casesensitive, boolean allowCheckDigit)
+			throws Exception {
 		return generateRandom(prefix, length, range, null, null, alphanumeric,
-				casesensitive);
+				casesensitive, allowCheckDigit);
 	}
 
 	public List<String> generateRandom(String prefix, int length, int range,
 			Date date, String dateFormat, boolean alphanumeric,
-			boolean caseSensitive) {
+			boolean caseSensitive, boolean allowCheckDigit) {
 
 		String prefixPart = "";
 		String newCode = "";
@@ -152,7 +158,10 @@ public class NumberGenerator {
 						+ strUtil.randomString(length, true, alphanumeric,
 								caseSensitive);
 				try {
-					newCode += "-" + ChecksumUtil.getLuhnChecksum(newCode);
+
+					if (allowCheckDigit == true) {
+						newCode += "-" + ChecksumUtil.getLuhnChecksum(newCode);
+					}
 					String query = "insert into _identifier values ('"
 							+ newCode + "', current_timestamp())";
 					Object result = dbUtil

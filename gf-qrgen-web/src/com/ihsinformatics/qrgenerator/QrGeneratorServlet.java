@@ -80,6 +80,9 @@ public class QrGeneratorServlet extends HttpServlet {
 				.getResourceAsStream("/qrgenerator.properties");
 		boolean allowDuplicates = (request.getParameter("duplicates") != null) ? true
 				: false;
+		
+		boolean checkDigit = (request.getParameter("checkdigitBox") != null) ? true
+				: false;
 		String typeSelection = request.getParameter("typeSelection");
 
 		String appendDate = request.getParameter("appendDate");
@@ -123,33 +126,33 @@ public class QrGeneratorServlet extends HttpServlet {
 			int to = Integer.parseInt(request.getParameter("to"));
 			if (prefix == null && appendDate == null) {
 				numberList = numberGenerator.generateSerial(length, from, to,
-						allowDuplicates);
+						allowDuplicates, checkDigit);
 			} else if (prefix != null && appendDate == null) {
 				numberList = numberGenerator.generateSerial(prefix, length,
-						from, to, allowDuplicates);
+						from, to, allowDuplicates, checkDigit);
 			} else {
 				numberList = numberGenerator.generateSerial(prefix, length,
-						from, to, date, dateFormat, allowDuplicates);
+						from, to, date, dateFormat, allowDuplicates, checkDigit);
 			}
 		} else {
 			range = Integer.parseInt(Stringrange);
 			if (prefix == null && appendDate == null) {
 				try {
 					numberList = numberGenerator.generateRandom(length, range,
-							alphanumeric, casesensitive);
+							alphanumeric, casesensitive, checkDigit);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else if (prefix != null && appendDate == null) {
 				try {
 					numberList = numberGenerator.generateRandom(prefix, length,
-							range, alphanumeric, casesensitive);
+							range, alphanumeric, casesensitive, checkDigit);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else {
 				numberList = numberGenerator.generateRandom(prefix, length,
-						range, date, dateFormat, alphanumeric, casesensitive);
+						range, date, dateFormat, alphanumeric, casesensitive, checkDigit);
 			}
 		}
 		

@@ -20,6 +20,7 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 
 <%!String selection;
 	String duplicates;
+	String checkDigit;
 	String prefix1;
 	String appendDate;
 	String alphanumeric;
@@ -37,6 +38,7 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 	prefix1 = request.getParameter("prefix");
 	selection = request.getParameter("typeSelection");
 	duplicates = request.getParameter("duplicates");
+	checkDigit = request.getParameter("checkdigitBox");
 	appendDate = request.getParameter("appendDate");
 	dateFormat = request.getParameter("dateFormatList");
 	date = request.getParameter("date");
@@ -482,6 +484,13 @@ function isAlphaNumeric(e) {
 								<%=("on".equals(duplicates) ? "checked" : "")%>></td>
 						</tr>
 
+						<tr>
+							<th>Allow Check Digit</th>
+							<td style="padding-left: 23px"><input id="checkdigitBox"
+								type="checkbox" name="checkdigitBox"
+								<%=("on".equals(checkDigit) ? "checked" : "")%>></td>
+						</tr>
+						
 						<tr>
 							<th>Prefix</th>
 							<td style="padding-left: 23px"><input name="prefix"
