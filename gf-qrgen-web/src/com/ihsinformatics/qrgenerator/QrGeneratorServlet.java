@@ -152,6 +152,7 @@ public class QrGeneratorServlet extends HttpServlet {
 						range, date, dateFormat, alphanumeric, casesensitive);
 			}
 		}
+		
 
 		if (numberList != null) {
 
