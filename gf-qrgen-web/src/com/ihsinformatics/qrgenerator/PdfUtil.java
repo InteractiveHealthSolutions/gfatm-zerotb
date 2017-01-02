@@ -67,17 +67,17 @@ public class PdfUtil {
 
 		for (String str : data) {
 			if (str.length() > 0 && str.length() <= 5) {
-				length = 53;
+				length = 54;
 			} else if (str.length() >= 6 && str.length() <= 9) {
-				length = 43;
+				length = 44;
 			} else if (str.length() >= 10 && str.length() <= 11) {
-				length = 35;
+				length = 36;
 			} else if (str.length() >= 12 && str.length() <= 14) {
-				length = 26;
+				length = 27;
 			} else if (str.length() >= 15 && str.length() <= 17) {
-				length = 21;
+				length = 22;
 			} else {
-				length = 14;
+				length = 15;
 			}
 			Hashtable<EncodeHintType, ErrorCorrectionLevel> hintMap = new Hashtable<EncodeHintType, ErrorCorrectionLevel>();
 			hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
@@ -98,7 +98,7 @@ public class PdfUtil {
 			Graphics2D graphics = (Graphics2D) image.getGraphics();
 			graphics.setColor(Color.WHITE);
 			graphics.fillRect(0, 0, matrixWidth + 5, matrixHeight + 5);
-			graphics.setFont(graphics.getFont().deriveFont(15f));
+			graphics.setFont(graphics.getFont().deriveFont(13f));
 			graphics.setColor(Color.BLACK);
 			graphics.drawString(str, length, height - 10);
 			for (int i = 0; i < matrixHeight; i++) {
