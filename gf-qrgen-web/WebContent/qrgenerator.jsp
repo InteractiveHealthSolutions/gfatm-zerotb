@@ -148,7 +148,6 @@ function isNumber(evt) {
 <script type="text/javascript">
 $( document ).ready(function() {
     enableFormat();
-    changeForm();
     enableSensitive();
 });
 </script>
@@ -402,6 +401,7 @@ function isAlphaNumeric(e) {
 
 		if (serial.checked == true) {
 			alpha.style.display = 'none';
+			document.getElementById('errorLbl').innerHTML = "";
 			sensitive.style.display = 'none';
 			alphaLbl.style.display = 'none';
 			link.style.display = 'none';
@@ -416,6 +416,7 @@ function isAlphaNumeric(e) {
 
 		else if (random.checked == true) {
 			enableSensitive();
+			document.getElementById('errorLbl').innerHTML = "";
 			alpha.style.display = 'inline-block';
 			sensitive.style.display = 'inline-block';
 			link.style.display = 'table-cell';
@@ -444,7 +445,9 @@ function isAlphaNumeric(e) {
 
 
 			<div class="col-md-12 column">
-				<h3 align="center">QR Code Generator <font size="1">Version 1.0.0</font></h3>
+				<h3 align="center">
+					QR Code Generator <font size="1">Version 1.0.3</font>
+				</h3>
 				<form method="POST" action="/gf-qrgen-web/qrgenerator"
 					id="qrGenForm">
 
@@ -490,7 +493,7 @@ function isAlphaNumeric(e) {
 								type="checkbox" name="checkdigitBox"
 								<%=("on".equals(checkDigit) ? "checked" : "")%>></td>
 						</tr>
-						
+
 						<tr>
 							<th>Prefix</th>
 							<td style="padding-left: 23px"><input name="prefix"
@@ -622,6 +625,10 @@ function isAlphaNumeric(e) {
 										<%=("3".equals(copies) ? "selected = 'selected'" : "")%>>3</option>
 									<option value="4"
 										<%=("4".equals(copies) ? "selected = 'selected'" : "")%>>4</option>
+									<option value="5"
+										<%=("4".equals(copies) ? "selected = 'selected'" : "")%>>5</option>
+									<option value="6"
+										<%=("4".equals(copies) ? "selected = 'selected'" : "")%>>6</option>
 							</select></td>
 						</tr>
 
@@ -629,11 +636,10 @@ function isAlphaNumeric(e) {
 							<td colspan="3" align="center" id="errorLbl"
 								style="color: red; font-weight: bold">${errorMsg}</td>
 						</tr>
-						
+
 						<tr>
-						<td colspan="3" align="center" id="linkRow">
-						<a href= "${linkDownload}">${linkTitle}</a>
-						</td>
+							<td colspan="3" align="center" id="linkRow"><a
+								href="${linkDownload}">${linkTitle}</a></td>
 						</tr>
 
 						<tr>

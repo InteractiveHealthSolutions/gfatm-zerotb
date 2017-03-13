@@ -114,6 +114,7 @@ public class NumberGenerator {
 		return codes;
 	}
 
+	
 	public List<String> generateRandom(int length, int range,
 			boolean alphanumeric, boolean casesensitive, boolean allowCheckDigit)
 			throws Exception {
