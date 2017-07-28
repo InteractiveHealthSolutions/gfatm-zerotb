@@ -32,7 +32,9 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 	String to;
 	String range;
 	String layout;
-	String copies;%>
+	String copies;
+	String pagetypes;
+	String pageorientations;%>
 
 <%
 	prefix1 = request.getParameter("prefix");
@@ -48,8 +50,10 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 	range = request.getParameter("rangeForRandom");
 	layout = request.getParameter("column");
 	copies = request.getParameter("copiesList");
+	pagetypes = request.getParameter("pagetype");
 	from = request.getParameter("from");
 	to = request.getParameter("to");
+	pageorientations = request.getParameter("pageorientation");
 	if (prefix1 == null) {
 		prefix1 = "";
 	}
@@ -120,6 +124,17 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 	}
 </script>
 
+
+<script type="text/javascript"> 
+$( document ).ready(function() { 
+enableFormat(); 
+changeForm(); 
+enableSensitive(); 
+updateColumns();
+setNumberOfCopies();
+}); 
+</script>
+
 <script type="text/javascript">
 	function enableSensitive() {
 		var checkedValue = document.getElementById('alphanumericBox');
@@ -130,10 +145,85 @@ Interactive Health Solutions, hereby disclaims all copyright interest in this pr
 			document.getElementById('caseSenstiveBox').disabled = true;
 		}
 	}
+	
 </script>
 
-
-
+<script type="text/javascript">
+	
+	function updateColumns() {
+		
+		var columnList = document.getElementById("columnBox");
+		
+		if(document.getElementById("portraitBtn").checked == true){
+			for (var i=0; i<columnList.length; i++){
+				  if (columnList.options[i].value == '7' || columnList.options[i].value == '8'){
+					  columnList.remove(i);
+				       i = 0;
+				  }
+			}
+			setNumberOfCopies();
+		}
+		else{
+			if(columnList.length == 4){
+			 	for(i = 7 ; i <= 8 ; i++){
+					 var objOption = document.createElement("option");
+					 objOption.text = i;
+					 objOption.value = i;
+					 columnList.options.add(objOption);
+				 }
+			}
+			
+			setNumberOfCopies();
+		}
+	}
+	
+	</script>
+	
+<script type="text/javascript"> 
+	
+	function setNumberOfCopies(){
+		var colList = document.getElementById("columnBox");
+		var columnSelectedValue = colList.options[colList.selectedIndex].value;
+		var columnSelectedVal = parseInt(columnSelectedValue);
+		var copiesBox = document.getElementById("copyBox");
+		var numberArr = [];
+		var k = columnSelectedVal;
+		
+		for(i = copiesBox.options.length - 1 ; i >= 1  ; i--){
+			copiesBox.remove(i);
+		}
+		
+		if(columnSelectedVal % 2 == 0){
+			
+			while (k > 1){
+				numberArr.push(k);
+				if( k % 2 == 0){
+					k/=2;
+				}
+				else{
+					break;
+				}
+			}
+			
+			for(j = numberArr.length - 1 ; j >= 0 ; j--){
+				 var objOption = document.createElement("option");
+				 objOption.value = numberArr[j];
+				 objOption.text = numberArr[j];
+				 copiesBox.options.add(objOption);
+			}
+		}
+		
+		else{
+			 var objOption = document.createElement("option");
+			 objOption.text = columnSelectedVal;
+			 objOption.value = columnSelectedVal;
+			 copiesBox.options.add(objOption);
+		}
+		
+	} 
+	
+</script>	
+	
 <script type="text/javascript">
 function isNumber(evt) {
     evt = (evt) ? evt : window.event;
@@ -145,12 +235,6 @@ function isNumber(evt) {
 }
 </script>
 
-<script type="text/javascript">
-$( document ).ready(function() {
-    enableFormat();
-    enableSensitive();
-});
-</script>
 
 <script type="text/javascript">
 function isAlphaNumeric(e) {
@@ -169,7 +253,7 @@ function isAlphaNumeric(e) {
 
 
 <script type="text/javascript">
-	function submitForm() {
+	function submitForm(btnText) {
 		var serialNumList = document.getElementById("serialNum");
 		var serialValue = serialNumList.options[serialNumList.selectedIndex].value;
 		var toVal = document.getElementById("toBox");
@@ -185,6 +269,9 @@ function isAlphaNumeric(e) {
 		var serial = document.getElementById("serialBtn");
 		var random = document.getElementById("randomBtn");
 		var randomRange = document.getElementById("rangeBox");
+		var btnType = document.getElementById("hiddenBtn");
+		
+	    btnType.value = btnText;
 		
 		var reg = new RegExp('^[0-9]+$');
 		var reg1 = new RegExp('[a-zA-Z0-9]*[a-zA-Z]*');
@@ -368,6 +455,7 @@ function isAlphaNumeric(e) {
 			}
 			
 			else {
+				error.innerHTML = "";
 				form.submit();
 			}
 
@@ -431,9 +519,8 @@ function isAlphaNumeric(e) {
 		}
 
 	}
-</script>
-
-
+	
+	</script>
 </head>
 <body>
 	<div class="container">
@@ -446,7 +533,7 @@ function isAlphaNumeric(e) {
 
 			<div class="col-md-12 column">
 				<h3 align="center">
-					QR Code Generator <font size="1">Version 1.0.3</font>
+					QR Code Generator <font size="1">Version 1.1.0</font>
 				</h3>
 				<form method="POST" action="/gf-qrgen-web/qrgenerator"
 					id="qrGenForm">
@@ -598,10 +685,33 @@ function isAlphaNumeric(e) {
 						</tr>
 
 						<tr>
+							<th>Page Type</th>
+							<td style="padding-left: 23px"><select name="pagetype"
+								class="form-control input" required="true" id="pageType">
+									<option value="A4"
+										<%=("A4".equals(pagetypes) ? "selected = 'selected'" : "")%>>A4</option>
+							</select></td>
+						</tr>
+
+
+						<tr>
+							<th style="width: 1.3in">Page Orientation</th>
+							<td style="padding-left: 23px; width: 3.5in"><input
+								type="radio" id="portraitBtn" value="portrait" checked
+								name="pageorientation" onclick="updateColumns()"
+								<%=("portrait".equals(pageorientations) ? "checked" : "")%>>Portrait
+								<input type="radio" id="landscapeBtn" value="landscape"
+								name="pageorientation" onclick="updateColumns()"
+								<%=("landscape".equals(pageorientations) ? "checked" : "")%>
+								style="margin-left: 25px">Landscape</td>
+						</tr>
+
+
+						<tr>
 							<th>QR Code Layout</th>
 							<td style="padding-left: 23px">column(s)<select
 								name="column" class="form-control input" required="true"
-								id="columnBox">
+								id="columnBox" onchange="setNumberOfCopies()">
 									<option value="3"
 										<%=("3".equals(layout) ? "selected = 'selected'" : "")%>>3</option>
 									<option value="4"
@@ -610,6 +720,10 @@ function isAlphaNumeric(e) {
 										<%=("5".equals(layout) ? "selected = 'selected'" : "")%>>5</option>
 									<option value="6"
 										<%=("6".equals(layout) ? "selected = 'selected'" : "")%>>6</option>
+									<option value="7"
+										<%=("7".equals(layout) ? "selected = 'selected'" : "")%>>7</option>
+									<option value="8"
+										<%=("8".equals(layout) ? "selected = 'selected'" : "")%>>8</option>
 							</select></td>
 						</tr>
 
@@ -626,12 +740,14 @@ function isAlphaNumeric(e) {
 									<option value="4"
 										<%=("4".equals(copies) ? "selected = 'selected'" : "")%>>4</option>
 									<option value="5"
-										<%=("4".equals(copies) ? "selected = 'selected'" : "")%>>5</option>
+										<%=("5".equals(copies) ? "selected = 'selected'" : "")%>>5</option>
 									<option value="6"
-										<%=("4".equals(copies) ? "selected = 'selected'" : "")%>>6</option>
+										<%=("6".equals(copies) ? "selected = 'selected'" : "")%>>6</option>
+									<option value="7"
+										<%=("7".equals(copies) ? "selected = 'selected'" : "")%>>7</option>
+									<option value="8"
+										<%=("8".equals(copies) ? "selected = 'selected'" : "")%>>8</option>
 							</select></td>
-						</tr>
-
 						<tr>
 							<td colspan="3" align="center" id="errorLbl"
 								style="color: red; font-weight: bold">${errorMsg}</td>
@@ -646,15 +762,22 @@ function isAlphaNumeric(e) {
 							<td colspan="3">
 								<div class="control-group">
 
-									<div class="col-md 4">
+									<div class="col-md 6">
 										<div class="text-center">
-											<input value="Generate" id="singlebutton" type="button"
-												onclick="submitForm()" class="btn btn-success" />
+										<input value="Generate PDF" id="pdfButton" type="button"
+												onclick="submitForm(this.id);" class="btn btn-success" />
+												&nbsp;&nbsp;
+										<input value="Generate ZIP" id="zipButton" type="button"
+												onclick="submitForm(this.id)" class="btn btn-success" />
+												
+										<input type="hidden" id="hiddenBtn" name = "fileType"/>
+										
 										</div>
-
+								
 									</div>
 								</div>
 							</td>
+							
 						</tr>
 					</table>
 				</form>

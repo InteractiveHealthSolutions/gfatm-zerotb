@@ -86,6 +86,7 @@ public class QrGeneratorServlet extends HttpServlet {
 		String typeSelection = request.getParameter("typeSelection");
 
 		String appendDate = request.getParameter("appendDate");
+		String fileType = request.getParameter("fileType");
 		int range = 0;
 		String prefix = request.getParameter("prefix");
 		int length = Integer.parseInt(request.getParameter("serialNumberList"));
@@ -95,6 +96,8 @@ public class QrGeneratorServlet extends HttpServlet {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		String dateFormat = request.getParameter("dateFormatList");
 		String partialDate = request.getParameter("date");
+		String pageType = request.getParameter("pagetype");
+		String pageOrientation = request.getParameter("pageorientation");
 		boolean alphanumeric = (request.getParameter("alphanumeric") == null) ? false
 				: true;
 		boolean casesensitive = (request.getParameter("casesensitive") == null) ? false
@@ -159,13 +162,21 @@ public class QrGeneratorServlet extends HttpServlet {
 
 		if (numberList != null) {
 
-			String fileName = "QrCode" + String.valueOf(new Date().getTime())
-					+ ".pdf";
-
 			PdfUtil pdfUtil = new PdfUtil();
-			byteArrayOutputStream = pdfUtil.generatePdf(numberList, 140, 140,
-					copiesImage, columnLimit);
+			
+			String fileName = "QrCode" + String.valueOf(new Date().getTime());
+			
+			if(fileType.equals("pdfButton")){
+				fileName+=".pdf";
+				byteArrayOutputStream = pdfUtil.generatePdf(numberList, 140, 140,
+						copiesImage, columnLimit,pageType,pageOrientation);
+			}
+			else{
+				fileName+=".zip";
+				byteArrayOutputStream = ZipUtil.getZip(numberList, 140, 140);
+			}
 
+			
 			if (numberList.size() != range && typeSelection.equals("random")) {
 
 				String rootPath = System.getProperty("user.dir");
@@ -200,10 +211,13 @@ public class QrGeneratorServlet extends HttpServlet {
 				response.setHeader("Cache-Control",
 						"must-revalidate, post-check=0, pre-check=0");
 				response.setHeader("Pragma", "public");
-				response.setContentType("application/pdf");
+				if(fileType.equals("pdfButton"))
+					response.setContentType("application/pdf");
+				else
+					response.setContentType("application/zip");
+				
 				response.setHeader("Content-Disposition",
 						"attachment; filename=" + fileName);
-
 				OutputStream os = response.getOutputStream();
 				byteArrayOutputStream.writeTo(os);
 				os.flush();
