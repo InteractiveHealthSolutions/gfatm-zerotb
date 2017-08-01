@@ -254,6 +254,7 @@ function isAlphaNumeric(e) {
 
 <script type="text/javascript">
 	function submitForm(btnText) {
+		document.getElementById('linkRow').innerHTML = "";
 		var serialNumList = document.getElementById("serialNum");
 		var serialValue = serialNumList.options[serialNumList.selectedIndex].value;
 		var toVal = document.getElementById("toBox");
@@ -489,7 +490,7 @@ function isAlphaNumeric(e) {
 
 		if (serial.checked == true) {
 			alpha.style.display = 'none';
-			document.getElementById('errorLbl').innerHTML = "";
+			//document.getElementById('errorLbl').innerHTML = "";
 			sensitive.style.display = 'none';
 			alphaLbl.style.display = 'none';
 			link.style.display = 'none';
@@ -504,7 +505,7 @@ function isAlphaNumeric(e) {
 
 		else if (random.checked == true) {
 			enableSensitive();
-			document.getElementById('errorLbl').innerHTML = "";
+			//document.getElementById('errorLbl').innerHTML = "";
 			alpha.style.display = 'inline-block';
 			sensitive.style.display = 'inline-block';
 			link.style.display = 'table-cell';
@@ -521,6 +522,14 @@ function isAlphaNumeric(e) {
 	}
 	
 	</script>
+	
+	<script type="text/javascript">
+	function removeError(){
+			document.getElementById('errorLbl').innerHTML = "";
+			document.getElementById('linkRow').innerHTML = "";
+	}
+	
+	</script>
 </head>
 <body>
 	<div class="container">
@@ -533,7 +542,7 @@ function isAlphaNumeric(e) {
 
 			<div class="col-md-12 column">
 				<h3 align="center">
-					QR Code Generator <font size="1">Version 1.1.0</font>
+					QR Code Generator <font size="1">Version 1.2.0</font>
 				</h3>
 				<form method="POST" action="/gf-qrgen-web/qrgenerator"
 					id="qrGenForm">
@@ -545,10 +554,10 @@ function isAlphaNumeric(e) {
 							<th style="width: 1.3in">Type</th>
 							<td style="padding-left: 23px; width: 3.5in"><input
 								type="radio" id="serialBtn" value="serial" checked
-								onclick="changeForm()" name="typeSelection"
+								onclick="changeForm();removeError();" name="typeSelection"
 								<%=("serial".equals(selection) ? "checked" : "")%>>Serial
 								<input type="radio" id="randomBtn" value="random"
-								onclick="changeForm()" name="typeSelection"
+								onclick="changeForm();removeError();" name="typeSelection"
 								<%=("random".equals(selection) ? "checked" : "")%>
 								style="margin-left: 25px">Random</td>
 						</tr>
@@ -766,7 +775,7 @@ function isAlphaNumeric(e) {
 										<div class="text-center">
 										<input value="Generate PDF" id="pdfButton" type="button"
 												onclick="submitForm(this.id);" class="btn btn-success" />
-												&nbsp;&nbsp;
+											 	&nbsp;&nbsp;
 										<input value="Generate ZIP" id="zipButton" type="button"
 												onclick="submitForm(this.id)" class="btn btn-success" />
 												

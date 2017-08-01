@@ -27,7 +27,7 @@ public class ZipUtil {
 					+ "ZipFilesTemp");
 
 			// temp checkup
-			// File directory = new File("E:\\ZipFiles");
+		//	 File directory = new File("E:\\ZipFiles");
 			if (!directory.exists()) {
 				directory.mkdir();
 			}
