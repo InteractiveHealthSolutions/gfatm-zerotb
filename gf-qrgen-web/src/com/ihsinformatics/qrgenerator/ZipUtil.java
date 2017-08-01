@@ -34,7 +34,7 @@ public class ZipUtil {
 
 			for (String str : data) {
 				if (str.length() > 0 && str.length() <= 5) {
-					length = 54;
+					length = 58;
 				} else if (str.length() >= 6 && str.length() <= 9) {
 					length = 38;
 				} else if (str.length() >= 10 && str.length() <= 11) {
